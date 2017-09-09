@@ -17,7 +17,7 @@ public class RosterInfo implements Serializable{
 	public String end;
 	public String roomNum;
 	@Serialize
-	public TeacherInfo teacherInfo;
+	public TeacherInfo teacherInfo = new TeacherInfo();
 	
 	public static class TeacherInfo implements Serializable{
 		public String name;

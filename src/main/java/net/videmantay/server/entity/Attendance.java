@@ -33,13 +33,13 @@ public Set<String> studentAbsent =new HashSet<String>();
 //tardy student will still fall under present category
 public Set<String> allStudents  =new HashSet<String>();
 public Set<String> studentTardy  =new HashSet<String>();
-public List<Key<StudentAttendance>>attendanceKeys = new ArrayList<Key<StudentAttendance>>();
+public List<String>studentAttendanceKeys = new ArrayList<String>();
 
 @Ignore
 public Set<StudentAttendance> studentAttendance = new HashSet<StudentAttendance>();
 
 public Attendance(){
-	id = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+	id = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 }
 
 

@@ -3,6 +3,7 @@ package net.videmantay.server.entity;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.SafeHtml;
@@ -44,7 +45,8 @@ public class Roster implements Serializable{
 	
 	@Ignore
 	public Attendance attendance;
-	
+	@Ignore
+	public List<RosterStudent> students ;
 	
 	
 	@Ignore

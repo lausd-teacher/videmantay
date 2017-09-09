@@ -28,7 +28,7 @@ public class StudentGoal implements Serializable {
 	public String dueDate;
 	
 	@Index
-	public Long studentId;
+	public String studentId;
 	
 	@Serialize
 	public List<Attempt> attempts;
@@ -36,7 +36,6 @@ public class StudentGoal implements Serializable {
 	public boolean met = false;
 	
 	public double percentAccomplished = 0;
-	public ArrayList<String> taskList = new ArrayList<>();
 	
 	public double value;
 	

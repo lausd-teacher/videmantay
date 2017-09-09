@@ -1,5 +1,6 @@
 package net.videmantay.server.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,22 +8,21 @@ import com.google.api.services.classroom.model.Student;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Ignore;
+import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
 public class RosterStudent {
 	
 	public String firstName;
 	public String lastName;
-	public String dob;
+	public String DOB;
 	public String picUrl;
 	@Id
 	public String acct;
-	public String imageUrl;
+	@Serialize
+	public ArrayList<Thumbnail> thumbnails = new ArrayList<>();
 	
 	public Long rosterId;
-	public String courseId;
-	@Ignore
-	public Student student = null;
 
 	
 	
@@ -37,5 +37,7 @@ public class RosterStudent {
 	public Boolean IEP;
 	public String currentSummary;
 	public String driveFolder;
+	public boolean inactive;
+	public ArrayList<StudentJob>jobs = new ArrayList<>();
 
 }

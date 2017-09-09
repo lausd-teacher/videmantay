@@ -15,9 +15,7 @@ public class StudentIncident implements Serializable {
 	
 	@Id
 	public Long id;
-	
-	@Parent
-	public transient Key<RosterStudent> parent;
+
 	
 	@Index
 	public String studentId;

@@ -19,7 +19,7 @@ public class DeleteAttendance implements DeferredTask {
 		List<Attendance>attendance = db().load().type(Attendance.class).filter("rosterId", rosterId).list();
 		if(attendance != null){
 		for(Attendance key:attendance){
-			db().delete().keys(key.attendanceKeys);
+			//TODO: fix this delete -- db().delete().keys(key.attendanceKeys);
 		}
 		db().delete().entities(attendance);
 	}
