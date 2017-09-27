@@ -105,7 +105,7 @@ public class RosterService {
 				rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
 				response.id = rosterInfo.id = db().save().entity(rosterInfo).now().getId();
 				
-				if(response.calendarId == null || response.calendarId.isEmpty()){
+			/*	if(response.calendarId == null || response.calendarId.isEmpty()){
 					Calendar cal = new Calendar();
 					cal.setSummary(rosterInfo.name);
 					cal.setDescription(rosterInfo.description);
@@ -141,7 +141,7 @@ public class RosterService {
 				
 				
 				response.folders.put("public",sharedFolder.getId());
-				response.folders.put("students" ,studentFolder.getId());
+				response.folders.put("students" ,studentFolder.getId());*/
 				
 				//save roster at this point
 				db().save().entity(response);
@@ -154,85 +154,83 @@ public class RosterService {
 				incident = new Incident();
 				incident.setName("Turned in HW");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
+				incident.setImageUrl("yellowBeaker");
 				incidents.add(incident);
 				// 2. paricipatation -1px
 				incident = new Incident();
 				incident.setName("Participation");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#redBeaker");
+				incident.setImageUrl("redBeaker");
 				incidents.add(incident);
 				// 3. help others -3px
 				incident = new Incident();
 				incident.setName("Helping others");
 				incident.setPoints(3);
-				incident.setImageUrl("/img/allicons.svg#scienceBoy");
+				incident.setImageUrl("scienceBoy");
 				incidents.add(incident);
 				// 4. took responsibility -2px
 				incident = new Incident();
 				incident.setName("Taking responsibility");
 				incident.setPoints(2);
-				incident.setImageUrl("/img/allicons.svg#rocket");
+				incident.setImageUrl("rocket");
 				incidents.add(incident);
 				// 5. shared ideas -1px
 				incident = new Incident();
 				incident.setName("Shared idea");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#doctor");
+				incident.setImageUrl("doctor");
 				incidents.add(incident);
 				// 6. listened attentively -5px;
 				incident = new Incident();
 				incident.setName("Listened attentively");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#scientist");
+				incident.setImageUrl("scientist");
 				incidents.add(incident);
 				// negative list///////////
 				// 1. no hw -1
 				incident = new Incident();
 				incident.setName("No HW");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#noHW");
+				incident.setImageUrl("noHW");
 				incidents.add(incident);
 				// 2. interrupted -1
 				incident = new Incident();
 				incident.setName("Interrupted");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#thermometerPlain");
+				incident.setImageUrl("thermometerPlain");
 				incidents.add(incident);
 				// 3. shouted out -3px
 				incident = new Incident();
 				incident.setName("Shouting out");
 				incident.setPoints(-3);
-				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
+				incident.setImageUrl("yellowBeaker");
 				incidents.add(incident);
 				// 4. distracted -2px
 				incident = new Incident();
 				incident.setName("New Incident");
 				incident.setPoints(-2);
-				incident.setImageUrl("/img/allicons.svg#yellowRadioactive");
+				incident.setImageUrl("yellowRadioactive");
 				incidents.add(incident);
 				// 5. bathroom - 1px
 				incident = new Incident();
 				incident.setName("Bathroom break");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#clipboard");
+				incident.setImageUrl("clipboard");
 				incidents.add(incident);
 				// 6. fighting -5px
 				incident = new Incident();
 				incident.setName("Fighting");
 				incident.setPoints(-5);
-				incident.setImageUrl("/img/allicons.svg#brokenglassWarning");
+				incident.setImageUrl("brokenglassWarning");
 				incidents.add(incident);
 				
 				response.incidents.addAll(db().save().entities(incidents).now().values());
 				
 				Routine defaultTime = new Routine();
-				defaultTime.rosterId = response.id;
-				defaultTime.setDefault(true);
-				defaultTime.setDescript("Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
-							" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.");
+				defaultTime.isDefault = true;
+				defaultTime.description ="Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
+							" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.";
 				defaultTime.title = "Class Routine";
-				defaultTime.setDefault(true);
 				defaultTime.id = db().save().entity(defaultTime).now().getId();
 				RoutineConfig ctConfig = new RoutineConfig();
 				ctConfig.id = defaultTime.id;
@@ -244,14 +242,14 @@ public class RosterService {
 		}else{
 			response.routines.addAll(db().load().type(Routine.class).list());
 			for(Routine r:response.routines){
-				if(r.isDefault()){
+				if(r.isDefault){
 					response.defaultRoutine = db().load().type(RoutineConfig.class).id(r.id).now();
 					response.defaultRoutine.routine = r;
 					break;
 				}
 			}//end for
 			response.incidents.addAll(db().load().type(Incident.class).list());
-			response.tasks = tasks.tasklists().get(response.taskListId).execute();
+			//response.tasks = tasks.tasklists().get(response.taskListId).execute();
 			response.rosterInfo = db().load().type(RosterInfo.class).first().now();
 			//load students if there are any
 			
@@ -323,7 +321,7 @@ public class RosterService {
 		Roster roster = db().load().type(Roster.class).first().now();
 	
 		//register students
-			File studentFolder = GoogleUtils.folder(student.acct);
+		/*	File studentFolder = GoogleUtils.folder(student.acct);
 			studentFolder.setParents(ImmutableList.of(roster.folders.get("students")));
 			Permission perm = new Permission();
 			perm.setRole("reader");
@@ -331,7 +329,7 @@ public class RosterService {
 			perm.setType("user");
 			studentFolder = drive.files().create(studentFolder).execute();
 			student.driveFolder = studentFolder.getId();
-			drive.permissions().create(studentFolder.getId(), perm).execute();
+			drive.permissions().create(studentFolder.getId(), perm).execute();*/
 			
 		//create the drive folders
 			
@@ -459,6 +457,14 @@ public Response listStudents() throws IOException{
 
 		return Response.status(Status.NOT_FOUND).build();
 
+	}
+	
+	@GET
+	@Path("/routinefull")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRoutineConfigList(){
+		List<RoutineConfig> configs = db().load().type(RoutineConfig.class).list();
+		return Response.ok().entity(configs).build();
 	}
 
 	@GET

@@ -90,6 +90,18 @@ public class TemplateGen{
 		return null;
 	}
 	
+	public Template getGradebook(){
+		Template gb;
+		try {
+			gb = cfg.getTemplate("gradebook.html");
+			return gb;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 
 	
    private static String error(){
