@@ -67,16 +67,16 @@ public class TemplateGen{
 		
 	}
 	
-	public  String getStudentPage(){
+	public  Template getStudentPage(){
 		try {
-			Template adminPage = cfg.getTemplate("student.html");
-			return adminPage.toString();
+			Template studentPage = cfg.getTemplate("student.html");
+			return studentPage;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		return error();
+		return null;
 	}
 	
 	public  Template getSchoologyPage(){

@@ -63,8 +63,6 @@ public class TeacherServlet extends HttpServlet {
 		log.info("school events are: " + schoolEvents);
 		
 		TemplateGen template = (TemplateGen) this.getServletContext().getAttribute("template");
-		//Could use freemarker as well, but it's not needed for now
-		//Not protected yet
 		res.setContentType("text/html");
 		res.setStatus(HttpServletResponse.SC_OK);
 		log.log(Level.INFO, "redenring teacher");

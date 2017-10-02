@@ -105,7 +105,7 @@ public class RosterService {
 				rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
 				response.id = rosterInfo.id = db().save().entity(rosterInfo).now().getId();
 				
-			/*	if(response.calendarId == null || response.calendarId.isEmpty()){
+				if(response.calendarId == null || response.calendarId.isEmpty()){
 					Calendar cal = new Calendar();
 					cal.setSummary(rosterInfo.name);
 					cal.setDescription(rosterInfo.description);
@@ -141,7 +141,7 @@ public class RosterService {
 				
 				
 				response.folders.put("public",sharedFolder.getId());
-				response.folders.put("students" ,studentFolder.getId());*/
+				response.folders.put("students" ,studentFolder.getId());
 				
 				//save roster at this point
 				db().save().entity(response);
@@ -154,83 +154,85 @@ public class RosterService {
 				incident = new Incident();
 				incident.setName("Turned in HW");
 				incident.setPoints(1);
-				incident.setImageUrl("yellowBeaker");
+				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
 				incidents.add(incident);
 				// 2. paricipatation -1px
 				incident = new Incident();
 				incident.setName("Participation");
 				incident.setPoints(1);
-				incident.setImageUrl("redBeaker");
+				incident.setImageUrl("/img/allicons.svg#redBeaker");
 				incidents.add(incident);
 				// 3. help others -3px
 				incident = new Incident();
 				incident.setName("Helping others");
 				incident.setPoints(3);
-				incident.setImageUrl("scienceBoy");
+				incident.setImageUrl("/img/allicons.svg#scienceBoy");
 				incidents.add(incident);
 				// 4. took responsibility -2px
 				incident = new Incident();
 				incident.setName("Taking responsibility");
 				incident.setPoints(2);
-				incident.setImageUrl("rocket");
+				incident.setImageUrl("/img/allicons.svg#rocket");
 				incidents.add(incident);
 				// 5. shared ideas -1px
 				incident = new Incident();
 				incident.setName("Shared idea");
 				incident.setPoints(1);
-				incident.setImageUrl("doctor");
+				incident.setImageUrl("/img/allicons.svg#doctor");
 				incidents.add(incident);
 				// 6. listened attentively -5px;
 				incident = new Incident();
 				incident.setName("Listened attentively");
 				incident.setPoints(1);
-				incident.setImageUrl("scientist");
+				incident.setImageUrl("/img/allicons.svg#scientist");
 				incidents.add(incident);
 				// negative list///////////
 				// 1. no hw -1
 				incident = new Incident();
 				incident.setName("No HW");
 				incident.setPoints(-1);
-				incident.setImageUrl("noHW");
+				incident.setImageUrl("/img/allicons.svg#noHW");
 				incidents.add(incident);
 				// 2. interrupted -1
 				incident = new Incident();
 				incident.setName("Interrupted");
 				incident.setPoints(-1);
-				incident.setImageUrl("thermometerPlain");
+				incident.setImageUrl("/img/allicons.svg#thermometerPlain");
 				incidents.add(incident);
 				// 3. shouted out -3px
 				incident = new Incident();
 				incident.setName("Shouting out");
 				incident.setPoints(-3);
-				incident.setImageUrl("yellowBeaker");
+				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
 				incidents.add(incident);
 				// 4. distracted -2px
 				incident = new Incident();
 				incident.setName("New Incident");
 				incident.setPoints(-2);
-				incident.setImageUrl("yellowRadioactive");
+				incident.setImageUrl("/img/allicons.svg#yellowRadioactive");
 				incidents.add(incident);
 				// 5. bathroom - 1px
 				incident = new Incident();
 				incident.setName("Bathroom break");
 				incident.setPoints(-1);
-				incident.setImageUrl("clipboard");
+				incident.setImageUrl("/img/allicons.svg#clipboard");
 				incidents.add(incident);
 				// 6. fighting -5px
 				incident = new Incident();
 				incident.setName("Fighting");
 				incident.setPoints(-5);
-				incident.setImageUrl("brokenglassWarning");
+				incident.setImageUrl("/img/allicons.svg#brokenglassWarning");
 				incidents.add(incident);
 				
 				response.incidents.addAll(db().save().entities(incidents).now().values());
 				
 				Routine defaultTime = new Routine();
-				defaultTime.isDefault = true;
-				defaultTime.description ="Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
-							" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.";
+				defaultTime.rosterId = response.id;
+				defaultTime.setDefault(true);
+				defaultTime.setDescript("Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
+							" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.");
 				defaultTime.title = "Class Routine";
+				defaultTime.setDefault(true);
 				defaultTime.id = db().save().entity(defaultTime).now().getId();
 				RoutineConfig ctConfig = new RoutineConfig();
 				ctConfig.id = defaultTime.id;
@@ -242,14 +244,14 @@ public class RosterService {
 		}else{
 			response.routines.addAll(db().load().type(Routine.class).list());
 			for(Routine r:response.routines){
-				if(r.isDefault){
+				if(r.isDefault()){
 					response.defaultRoutine = db().load().type(RoutineConfig.class).id(r.id).now();
 					response.defaultRoutine.routine = r;
 					break;
 				}
 			}//end for
 			response.incidents.addAll(db().load().type(Incident.class).list());
-			//response.tasks = tasks.tasklists().get(response.taskListId).execute();
+			response.tasks = tasks.tasklists().get(response.taskListId).execute();
 			response.rosterInfo = db().load().type(RosterInfo.class).first().now();
 			//load students if there are any
 			
@@ -321,7 +323,7 @@ public class RosterService {
 		Roster roster = db().load().type(Roster.class).first().now();
 	
 		//register students
-		/*	File studentFolder = GoogleUtils.folder(student.acct);
+			File studentFolder = GoogleUtils.folder(student.acct);
 			studentFolder.setParents(ImmutableList.of(roster.folders.get("students")));
 			Permission perm = new Permission();
 			perm.setRole("reader");
@@ -329,7 +331,7 @@ public class RosterService {
 			perm.setType("user");
 			studentFolder = drive.files().create(studentFolder).execute();
 			student.driveFolder = studentFolder.getId();
-			drive.permissions().create(studentFolder.getId(), perm).execute();*/
+			drive.permissions().create(studentFolder.getId(), perm).execute();
 			
 		//create the drive folders
 			
@@ -462,9 +464,9 @@ public Response listStudents() throws IOException{
 	@GET
 	@Path("/routinefull")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRoutineConfigList(){
-		List<RoutineConfig> configs = db().load().type(RoutineConfig.class).list();
-		return Response.ok().entity(configs).build();
+	public Response getFullRoutineList(){
+		List<RoutineConfig> list = db().load().type(RoutineConfig.class).list();
+		return Response.ok().entity(list).build();
 	}
 
 	@GET
@@ -504,21 +506,21 @@ public Response listStudents() throws IOException{
 	}
 
 	@GET
-	@Path("/routine/{classtimeId}/seatingchart")
+	@Path("/routine/{id}/seatingchart")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSeatingChart(@PathParam("classtimeId") Long classtimeId) {
+	public Response getSeatingChart(@PathParam("id") Long id) {
 		// TODO:check for roster blah blah
-		SeatingChart seatingChart = db().load().key(Key.create(SeatingChart.class, classtimeId)).now();
+		SeatingChart seatingChart = db().load().key(Key.create(SeatingChart.class, id)).now();
 		if (seatingChart == null) {
 			seatingChart = new SeatingChart();
-			seatingChart.id = classtimeId;
+			seatingChart.id = id;
 			db().save().entity(seatingChart);
 		}
 		return Response.ok().entity(seatingChart).build();
 	}
 
 	@POST
-	@Path("/routine/{classtimeId}/seatingchart")
+	@Path("/routine/{id}/seatingchart")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveSeatingChart(RoutineConfig config,
@@ -715,10 +717,10 @@ public Response listStudents() throws IOException{
 		return Response.ok().entity(studentWork).build();
 	}
 	@POST
-	@Path("/{id}/work/{workId}")
+	@Path("/work/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createGradedWork(@PathParam("id")Long id, GradedWork work) throws IOException, ParseException{
+	public Response createGradedWork(GradedWork work) throws IOException, ParseException{
 		
 		db().save().entity(work);
 		return Response.ok().entity(work).build();
@@ -743,17 +745,5 @@ public Response listStudents() throws IOException{
 		db().delete().keys(db().load().type(StudentWork.class).filter("gradedWorkId", work.id).keys());
 		return Response.ok().entity("Graded work successfully deleted").build();
 	}
-	
-	@GET
-	@Path("/googlecal")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response calendarList() throws IOException{
-		UserService us = UserServiceFactory.getUserService();
-		User user = us.getCurrentUser();
-		Credential cred = GoogleUtils.cred(user.getUserId());
-		com.google.api.services.calendar.Calendar calendar = GoogleUtils.calendar(cred);
 		
-		return Response.ok().entity(calendar.calendarList().list().setFields("items/id,items/summary,items/description").execute()).build();
-	}
-	
 }

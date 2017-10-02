@@ -1,0 +1,487 @@
+/*body should have fixed width now scroll */
+body {
+	overflow-x: hidden;
+	height: 100%;
+	width: 100%;
+	background-color: WhiteSmoke;
+	position: absolute;
+}
+
+/* full calenar stuff ---------------------*/
+/*need for fullcalendar iframe scroll on apple */
+.tab2 {
+	-webkit-overflow-scrolling: touch;
+	overflow-y: scroll;
+}
+
+iframe.calFrame {
+	border: none;
+	position: relative;
+	height: 580px;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+div#fullcalendar {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 1em;
+	margin-bottom: 0.25em;
+	position: relative;
+	z-index: 999;
+}
+
+div.fc-view-container {
+	z-index: inherit;
+}
+
+div.fc-view {
+	z-index: 1000;
+}
+
+div.fc-toolbar>.fc-left>h2 {
+	font-size: 1.5rem;
+}
+/* end fullcalendar style ************/
+/* jquery ui css stuff ----------------- */
+div.ui-rotatable-handle {
+	height: 24px;
+	width: 24px;
+	cursor: pointer;
+	border-radius: 100%;
+	background-size: 100%;
+	background-color: #f0f0f0;
+	background-image: url('/rotate.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	box-shadow: 1px 1px 2x Black;
+	color: DimGray;
+	top: -16px;
+	left: -10px;
+	position: relative;
+	z-index: 20
+}
+
+div.ui-draggable.ui-draggable-handle {
+	position: absolute;
+}
+
+<!--
+jquery ui selectable stuff -->div.item-student.ui-selecting {
+	background: #FECA40;
+	border: 2px solid Orange;
+}
+
+div.item-student.ui-selected {
+	background: #F39814;
+	color: white;
+	border: 1px solid RedOrange;
+}
+
+div.picker-dialog {
+	width: 80%;
+	height: 80%;
+}
+
+li.tab.myTab {
+	height: inherit;
+}
+
+ul.tabs li.tab.myTab a span {
+	display: block !important;
+}
+
+/* end jquery ui stuff *******************/
+.side-profile>div.right>img.profileImg {
+	margin-bottom: 0%;
+	margin-left: 5em;
+	marign-top: -1.5em;
+}
+
+.side-profile>div.right {
+	top: -1.35em;
+}
+
+.side-profile div.right .profileName {
+	text-shadow: 2px 2px 1px Black;
+	font-size: 1.10em;
+}
+
+.side-nav li>div {
+	height: 10em !important;
+}
+
+/* All Seating chart styles -----------------------*/
+.furniturePanel {
+	width: 20%;
+	height: 100%;
+	border: 1px dotted Red;
+}
+
+.rosterPanelSeatedDiv {
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	top: 0;
+	visibility: hidden;
+	z-index: 40;
+}
+
+.seatingChartSectionTitle {
+	font-size: 26px;
+	display: block;
+	text-align: center;
+}
+
+/* SeatingChart - Desk style */
+.desk {
+	position: absolute;
+	padding: 0px;
+}
+
+.desk:hover {
+	border: 1px solid Lime;
+	backgrond-color: Lime;
+	box-shadow: 1px 1px 2px Lime;
+}
+
+.desk table td {
+	padding: 0px;
+}
+
+.desk-wrapper {
+	position: absolute;
+}
+
+span.deskDeleter {
+	border-radius: 100%;
+	box-shadow: 1px 1px 2px Black;
+	color: red;
+	background-color: white;
+	position: absolute;
+	right: -0.75em;
+	top: -0.25em;
+	width: 16px;
+	height: 16px;
+	font-size: 15px;
+	z-index: 10;
+	display: none;
+	cursor: pointer;
+}
+
+.doubledesk {
+	width: 7.2em;
+	height: 3.6em;
+	background-image: url('../img/doubleDesk.png');
+	background-size: 100%;
+	background-repeat: no-repeat;
+}
+
+.singledesk {
+	width: 3.6em;
+	height: 3.6em;
+	background-image: url('../img/singleDesk.png');
+	background-size: 100%;
+	background-repeat: no-repeat;
+}
+
+.seat {
+	width: 3.6em;
+	height: 4em;
+	margin: 0px;
+	position: relative;
+}
+
+.seat-over {
+	background-color: rgba(139, 69, 19, 0.45);
+}
+/*End Desk style */
+/*SeatingChart -Toolbar */
+div.toolsPanel {
+	width: 7.5%;
+	height: 100%;
+	display: block;
+	float: left;
+	position: relative;
+	border: 1px dotted Red;
+}
+
+.studentTools {
+	display: none;
+}
+
+.studentTools ul.collection {
+	width: 100%;
+	height: 600px;
+}
+
+.studentTools ul.collection li {
+	border-bottom: 1px solid Gray;
+}
+
+.furnitureTools {
+	display: none;
+}
+/*  end seating chart style *************************/
+/* rosterStudent style ------------------------------*/
+.rosterStudent {
+	position: relative;
+	font-size: 0.75em;
+	padding: 0.5em;
+	padding-top: 0.15em;
+}
+
+.rosterStudent.chart {
+	position: relative;
+	min-width: 3.95em;
+	min-height: 7.9em;
+	display: block;
+}
+
+.rosterStudent.chart.ui-draggable.ui-draggable-handle {
+	position: relative;
+	width: 7em;
+	height: 9em;
+	border: 0.01em solid Gray;
+	border-radius: 15%;
+	box-shadow: 2px 2px 2px Gray;
+	background-color: transparent;
+}
+
+.rosterStudent.chart.ui-draggable.ui-draggable-handle.ui-draggable-dragging
+	{
+	border-style: none;
+	box-shadow: none;
+}
+
+.rosterStudent.grid {
+	position: relative;
+	top: 0px;
+	width: 125px;
+	height: 25em;
+}
+
+div.counterRotate.studentHead {
+	width: 100%;
+	height: 17em;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+div.counterRotate.studentBody {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.studentName {
+	font-weight: 10;
+	font-size: 1.1em;
+	margin-left: auto;
+	margin-right: auto;
+	font-family: Roboto, Serif;
+}
+
+.seatingChartImageDiv {
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+div.rosterStudent.grid>div.studentHead.counterRotate>div.badgetRow>span.statusBadge.white-text.circle.badge.sideBarBadge
+	{
+	display: inline-block;
+	border: 3px solid White;
+	box-shadow: 1px 1px 2px Gray;
+	position: absolute;
+	font-size: 2em !important;
+	padding-top: 19px !important;
+	font-family: Verdana, Sans;
+	font-weight: bold;
+	min-width: 2.5em !important;
+	min-height: 2.5em !important;
+	overflow: hidden;
+}
+
+div.rosterStudent.absent {
+	opacity: 0.5 !important;
+}
+
+.statusBadgeLeft {
+	left: -1.5em;
+}
+
+.statusBadgeRight {
+	right: -1em !important;
+}
+
+/* end roste student style *********************************************/
+/* seated student on desk */
+.desk .seat .rosterStudent {
+	top: -37px;
+}
+
+.desk .seat .rosterStudent .studentHead div.counterRotate {
+	position: absolute;
+	top: -1.25em;
+	width: 3.5em;
+}
+
+.desk .seat .rosterStudent .studentBody div.counterRotate {
+	position: absolute;
+	color: DarkGreen;
+	font-size: 1.15em;
+	border: 3px solid White;
+	border-radius: 15%;
+	box-shadow: 1px 1px 1px Gray;
+	background-color: White;
+	width: 3.5em;
+	z-index: 10;
+}
+/* end seating chart style *************************/
+.incidentCard:hover {
+	border: solid 2px blue;
+}
+
+.rosterStudentPanel:hover {
+	border: solid 2px blue;
+	cursor: pointer;
+}
+
+.iconFormInputContainer {
+	display: flex;
+	flex-direction: row;
+}
+
+.incidentFormIcon {
+	width: 6.6rem;
+	vertical-align: top;
+	display: inline-block;
+	margin: 0.5rem;
+}
+
+.incidentFormIcon:hover {
+	background: #ead4ec;
+}
+
+.selected {
+	border: solid 2px blue;
+}
+
+/* Roster panel style --------------------------*/
+div.card.rosterPanel {
+	background-image: url("../img/sammyOwlTemplate.svg");
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.rosterPanel-active {
+	font-weight: bold;
+}
+
+/* Classroom Main */
+.classroom {
+	background-color: WhiteSmoke;
+	height: 100%;
+	width: 100%;
+}
+
+.classroomNav {
+	background-image: url("../img/sammyOwlTemplate.svg");
+}
+
+.classroom-main {
+	background-color: WhiteSmoke;
+}
+
+.profilePad {
+	width: 50%;
+	max-width: 450px;
+	margin-left: 33%;
+	margin-top: 10%;
+	background-color: #d6e9f8;
+	border: 2px solid #67a7e3;
+}
+
+.errors {
+	font-size: 30px;
+	color: #00ff00;
+}
+
+.studentCardLabel {
+	font-size: 10px;
+}
+
+/*---------------------------Gradebook css------------------------------------*/
+div.gradebook-item {
+	float: left;
+	clear: none;
+	width: 3em;
+	overflow-x: hidden;
+}
+
+.assignment-title {
+	position: absolute;
+	transform: rotate(-35deg) skewX(55deg);
+	transform-origin: left;
+	padding: 3px;
+	padding-left: 3em;
+	z-index: 300;
+	border: 1px solid Gray;
+	border-left: none;
+	border-bottom: none;
+	width: 25em;
+	height: 2.75em;
+	margin-top: -7px;
+	margin-bottom: 3px;
+	margin-left: 2.5em;
+	background-color: White;
+}
+
+span.assignment-title-text {
+	position: absolute;
+	transform: skewX(-55deg)
+}
+
+div.gradebook-item>ul.collection {
+	margin-top: 1em;
+}
+
+ul.collection {
+	overflow-y: hidden;
+}
+
+li.collection-item>input[type=text], li.collection-item>input[type=text]:focus
+	{
+	outline: none;
+	padding: none;
+	margin: none;
+	border: none;
+	border-bottom: none !important;
+	height: 100% !important
+}
+
+.collection-item {
+	height: 3em;
+	overflow: hidden;
+	padding: 0px !important
+}
+
+/* station form */
+div#stationOverflowWrapper {
+	overflow-x: hidden;
+}
+
+div#stationCollectionWrapper {
+	min-width: 165px;
+	width: 370px;
+	overflow-x: scroll;
+}
+
+/*/student action panel items///*/
+.incidentActionItem {
+	border: 1px solid Gray;
+	box-shadow: 1px 1px 2px DimGray;
+	height: 166px;
+}

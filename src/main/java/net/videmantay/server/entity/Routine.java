@@ -15,13 +15,55 @@ public class Routine implements Serializable{
 	
 	@Id
 	public Long id;
+	
+	@Index
+	public Long rosterId;
+	
 	public String title;
-	public String description;
+	public String descript;
 	public String color;
+	
+	
+	
+	
 	public boolean isDefault;
 	
 	
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getDescript() {
+		return descript;
+	}
+	public void setDescript(String descript) {
+		this.descript = descript;
+	}
 	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id){
+		this.id = id;
+	}
+	
+	public Long getRosterId() {
+		return this.rosterId;
+	}
+	
+	public void setRosterId(Long rosterId) {
+		this.rosterId = rosterId;
+	}
+	
+	public boolean isDefault() {
+		return this.isDefault;
+	}
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	} 
 	@Override
 	public int hashCode() {
 		final int prime = 31;

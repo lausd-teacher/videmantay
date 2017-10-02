@@ -25,7 +25,7 @@ public class RoutineConfig implements Serializable {
 	public Set<Procedure> procedures = new HashSet<>();
 	
 	@Serialize
-	public Stations stations = new Stations();
+	public StationManager stationManager;
 	
 	@Ignore
 	public Routine routine;

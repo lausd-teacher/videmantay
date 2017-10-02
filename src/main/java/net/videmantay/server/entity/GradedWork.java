@@ -22,8 +22,8 @@ public class GradedWork implements Serializable{
 	
 	@Id
 	public Long id; 
-	@Index
-	public String rosterId;
+	public String title;
+	public String description;
 	@Index
 	public GradedWorkType type = GradedWorkType.HOMEWORK;
 	public String assignedDate;
