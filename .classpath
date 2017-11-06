@@ -12,21 +12,16 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="com.google.cloud.tools.eclipse.appengine.libraries/objectify">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="com.google.cloud.tools.eclipse.appengine.libraries/appengine-api">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-classroom-v1-rev48-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-calendar-v3-rev207-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-drive-v3-rev37-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-sheets-v4-rev17-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-tasks-v1-rev45-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-people-v1-rev139-1.22.0.jar"/>
+	<classpathentry kind="con" path="com.google.cloud.tools.eclipse.appengine.libraries/master-container">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

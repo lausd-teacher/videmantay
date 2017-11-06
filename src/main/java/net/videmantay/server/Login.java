@@ -45,7 +45,7 @@ public class Login extends HttpServlet{
 			cred.refreshToken();
 		}
     	
-		if(user.getEmail().equals("tdd6623@lausd.net")){
+		if(user.getEmail().equals("tdd6623@lausd.net") || user.getEmail().equals("youssef.elias@lausd.net") || user.getEmail().equals("roberto.partida@lausd.net")){
 			res.sendRedirect("/teacher");
 			return;
 		}else{

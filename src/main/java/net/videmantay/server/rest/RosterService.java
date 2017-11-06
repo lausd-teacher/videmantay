@@ -78,6 +78,7 @@ public class RosterService {
 		
 		UserService us = UserServiceFactory.getUserService();
 		User user = us.getCurrentUser();
+		
 		Credential cred = GoogleUtils.cred(user.getUserId());
 		Tasks tasks = GoogleUtils.task(cred);
 		Drive drive = GoogleUtils.drive(cred);
@@ -89,6 +90,7 @@ public class RosterService {
 		
 			
 				response = new Roster();
+				 getDemo(response);
 				
 				
 				response.ownerId = user.getEmail();
@@ -100,7 +102,7 @@ public class RosterService {
 				rosterInfo.start="2017-08-14";
 				rosterInfo.end = "2018-06-11";
 				rosterInfo.roomNum = "230";
-				rosterInfo.teacherInfo.name = "Mr. ViDemantay";
+				rosterInfo.teacherInfo.name =  "Mr." + me.getNames().get(0).getFamilyName();
 				rosterInfo.teacherInfo.grade = "5";
 				rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
 				response.id = rosterInfo.id = db().save().entity(rosterInfo).now().getId();
@@ -273,6 +275,37 @@ public class RosterService {
 			return Response.status(Status.CREATED).entity(response).build();
 		
 		}
+	
+	
+	public void getDemo(Roster roster){
+		List<RosterStudent> students = new ArrayList<RosterStudent>();
+		RosterStudent student1 = new RosterStudent();
+		student1.acct = "fake@studentemail.com";
+		student1.firstName = "Youssef";
+		student1.lastName = "Elias";
+		student1.currentSummary = "Youssef is a very good student and really loves programming.";
+		student1.rosterId = roster.id;
+		students.add(student1);
+		
+		RosterStudent student11 = new RosterStudent();
+		student11.acct = "fake2@studentemail.com";
+		student11.firstName = "Roberto";
+		student11.lastName = "Partida";
+		student11.currentSummary = "Roberto is a very good student and awlays follows directions.";
+		student11.rosterId = roster.id;
+		students.add(student11);
+		
+		RosterStudent student2 = new RosterStudent();
+		student2.acct = "fake1@studentemail.com";
+		student2.firstName = "Lee";
+		student2.lastName = "ViDemantay";
+		student2.currentSummary = "Lee needs support when focusing on a taks. Constant redirection is key for him to complete even the  most mundane task.";
+		student2.rosterId = roster.id;
+		students.add(student2);
+		
+		db().save().entities(students);
+		roster.students = students;
+	}
 	
 	@POST
 	public Response updateRoster(final Roster roster) throws IOException{

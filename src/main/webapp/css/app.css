@@ -111,6 +111,10 @@ ul.tabs li.tab.myTab a span {
 	height: 10em !important;
 }
 
+/* RosterPanel */
+
+
+
 /* All Seating chart styles -----------------------*/
 .furniturePanel {
 	width: 20%;
@@ -223,12 +227,42 @@ div.toolsPanel {
 	display: none;
 }
 /*  end seating chart style *************************/
+
+
 /* rosterStudent style ------------------------------*/
-.rosterStudent {
-	position: relative;
-	font-size: 0.75em;
+div.rosterStudent {
 	padding: 0.5em;
 	padding-top: 0.15em;
+}
+
+div.rosterStudent.grid{
+	width:100%;
+	height:10em;
+	background-color:White;
+	font-size:1.75em;
+	
+}
+div.rosterStudent.grid > div.studentHead {
+	
+	height:50%;
+	width:100%;
+	position:relative;
+}
+div.rosterStudent.grid > div.studentHead  > div.counterRotate{
+	height:100%;
+	width:100%;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	position:absolute;
+
+}
+
+div.rosterStudent.grid > div.studentBody {
+	height:50%;
+	width:100%;
+	padding:1em;
+	text-align:center;
 }
 
 .rosterStudent.chart {
@@ -254,20 +288,9 @@ div.toolsPanel {
 	box-shadow: none;
 }
 
-.rosterStudent.grid {
-	position: relative;
-	top: 0px;
-	width: 125px;
-	height: 25em;
-}
 
-div.counterRotate.studentHead {
-	width: 100%;
-	height: 17em;
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center;
-}
+
+
 
 div.counterRotate.studentBody {
 	display: block;
