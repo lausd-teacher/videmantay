@@ -38,8 +38,9 @@ public List<String>studentAttendanceKeys = new ArrayList<String>();
 @Ignore
 public Set<StudentAttendance> studentAttendance = new HashSet<StudentAttendance>();
 
-public Attendance(){
-	id = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+public Attendance(){}
+public Attendance(Long id){
+	this.id = id + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 }
 
 

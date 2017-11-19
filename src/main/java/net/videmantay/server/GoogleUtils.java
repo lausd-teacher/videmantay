@@ -38,7 +38,7 @@ public class GoogleUtils {
 	private final static UrlFetchTransport transport = new UrlFetchTransport();
 	private final static String applicationName = "RoutineLee";
 	private final static String clientId = "342098051221-vohdgpes1bunbmpkbb2i29k8tpkrcnqg.apps.googleusercontent.com";
-	private final static String clientSecret = "5nvXVjQOgBHdwoCwGC1x56Zy";
+	private final static String clientSecret = "99Z8GLF6TLVUK07MYbRRRerY";
 	public final static AppEngineDataStoreFactory dataStoreFactory = AppEngineDataStoreFactory.getDefaultInstance();
 	
 	public final static String PhotoUploadScope ="https://www.googleapis.com/auth/photos.upload";

@@ -85,7 +85,7 @@ public class RosterService {
 		PeopleService people = GoogleUtils.people(cred);
 		com.google.api.services.calendar.Calendar calendar = GoogleUtils.calendar(cred);
 		
-		Roster response = db().load().type(Roster.class).first().now();
+		Roster response = db().load().type(Roster.class).filter("ownerId", user.getEmail()).first().now();
 		if(response == null){
 		
 			
@@ -96,7 +96,7 @@ public class RosterService {
 				response.ownerId = user.getEmail();
 				RosterInfo rosterInfo = new RosterInfo();
 				
-				Person me = people.people().get("people/me").setPersonFields("photos").execute();
+				Person me = people.people().get("people/me").setPersonFields("names,emailAddresses,photos").execute();
 				rosterInfo.description = "Roster for the 2017 - 2018 school year.";
 				rosterInfo.name = "2017-2018 5th grade";
 				rosterInfo.start="2017-08-14";
@@ -105,6 +105,8 @@ public class RosterService {
 				rosterInfo.teacherInfo.name =  "Mr." + me.getNames().get(0).getFamilyName();
 				rosterInfo.teacherInfo.grade = "5";
 				rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
+				
+				//response issued its id here /////////
 				response.id = rosterInfo.id = db().save().entity(rosterInfo).now().getId();
 				
 				if(response.calendarId == null || response.calendarId.isEmpty()){
@@ -145,8 +147,7 @@ public class RosterService {
 				response.folders.put("public",sharedFolder.getId());
 				response.folders.put("students" ,studentFolder.getId());
 				
-				//save roster at this point
-				db().save().entity(response);
+				
 				
 				ArrayList<Incident> incidents = new ArrayList<>();
 				Incident incident;
@@ -154,76 +155,88 @@ public class RosterService {
 				// positive list////////
 				// 1. turned in hw - 1px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Turned in HW");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
+				incident.setImageUrl("yellowBeaker");
 				incidents.add(incident);
 				// 2. paricipatation -1px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Participation");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#redBeaker");
+				incident.setImageUrl("redBeaker");
 				incidents.add(incident);
 				// 3. help others -3px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Helping others");
 				incident.setPoints(3);
-				incident.setImageUrl("/img/allicons.svg#scienceBoy");
+				incident.setImageUrl("scienceBoy");
 				incidents.add(incident);
 				// 4. took responsibility -2px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Taking responsibility");
 				incident.setPoints(2);
-				incident.setImageUrl("/img/allicons.svg#rocket");
+				incident.setImageUrl("rocket");
 				incidents.add(incident);
 				// 5. shared ideas -1px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Shared idea");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#doctor");
+				incident.setImageUrl("doctor");
 				incidents.add(incident);
 				// 6. listened attentively -5px;
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Listened attentively");
 				incident.setPoints(1);
-				incident.setImageUrl("/img/allicons.svg#scientist");
+				incident.setImageUrl("scientist");
 				incidents.add(incident);
 				// negative list///////////
 				// 1. no hw -1
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("No HW");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#noHW");
+				incident.setImageUrl("noHW");
 				incidents.add(incident);
 				// 2. interrupted -1
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Interrupted");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#thermometerPlain");
+				incident.setImageUrl("thermometerPlain");
 				incidents.add(incident);
 				// 3. shouted out -3px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Shouting out");
 				incident.setPoints(-3);
-				incident.setImageUrl("/img/allicons.svg#yellowBeaker");
+				incident.setImageUrl("yellowBeaker");
 				incidents.add(incident);
 				// 4. distracted -2px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("New Incident");
 				incident.setPoints(-2);
-				incident.setImageUrl("/img/allicons.svg#yellowRadioactive");
+				incident.setImageUrl("yellowRadioactive");
 				incidents.add(incident);
 				// 5. bathroom - 1px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Bathroom break");
 				incident.setPoints(-1);
-				incident.setImageUrl("/img/allicons.svg#clipboard");
+				incident.setImageUrl("clipboard");
 				incidents.add(incident);
 				// 6. fighting -5px
 				incident = new Incident();
+				incident.rosterId = response.id;
 				incident.setName("Fighting");
 				incident.setPoints(-5);
-				incident.setImageUrl("/img/allicons.svg#brokenglassWarning");
+				incident.setImageUrl("brokenglassWarning");
 				incidents.add(incident);
 				
 				response.incidents.addAll(db().save().entities(incidents).now().values());
@@ -243,6 +256,8 @@ public class RosterService {
 				db().save().entities(seatingChart, ctConfig);
 				response.defaultRoutine = ctConfig;
 				response.rosterInfo = rosterInfo;
+				//save the roster async
+				db().save().entity(response);
 		}else{
 			response.routines.addAll(db().load().type(Routine.class).list());
 			for(Routine r:response.routines){
@@ -253,15 +268,15 @@ public class RosterService {
 				}
 			}//end for
 			response.incidents.addAll(db().load().type(Incident.class).list());
-			response.tasks = tasks.tasklists().get(response.taskListId).execute();
+			//response.tasks = tasks.tasklists().get(response.taskListId).execute();
 			response.rosterInfo = db().load().type(RosterInfo.class).first().now();
 			//load students if there are any
 			
 		}
 		
-			Attendance attendance = db().load().type(Attendance.class).id(new SimpleDateFormat("yyyy-MM-dd").format(new Date())).now();
+			Attendance attendance = db().load().type(Attendance.class).id(response.id + new SimpleDateFormat("yyyy-MM-dd").format(new Date())).now();
 			if(attendance == null){
-				attendance = new Attendance();
+				attendance = new Attendance(response.id);
 				db().save().entity(attendance);
 			}
 			response.attendance = attendance; 
@@ -285,14 +300,16 @@ public class RosterService {
 		student1.lastName = "Elias";
 		student1.currentSummary = "Youssef is a very good student and really loves programming.";
 		student1.rosterId = roster.id;
+		student1.id = roster.id+student1.acct;
 		students.add(student1);
 		
 		RosterStudent student11 = new RosterStudent();
 		student11.acct = "fake2@studentemail.com";
-		student11.firstName = "Roberto";
-		student11.lastName = "Partida";
-		student11.currentSummary = "Roberto is a very good student and awlays follows directions.";
+		student11.firstName = "Robert";
+		student11.lastName = "Rodriguez";
+		student11.currentSummary = "Robert is a very good student and awlays follows directions.";
 		student11.rosterId = roster.id;
+		student11.id = roster.id+student11.acct;
 		students.add(student11);
 		
 		RosterStudent student2 = new RosterStudent();
@@ -301,6 +318,7 @@ public class RosterService {
 		student2.lastName = "ViDemantay";
 		student2.currentSummary = "Lee needs support when focusing on a taks. Constant redirection is key for him to complete even the  most mundane task.";
 		student2.rosterId = roster.id;
+		student2.id = roster.id+student2.acct;
 		students.add(student2);
 		
 		db().save().entities(students);
@@ -308,6 +326,7 @@ public class RosterService {
 	}
 	
 	@POST
+	@Path("/{id}")
 	public Response updateRoster(final Roster roster) throws IOException{
 			RosterInfo rosInfo = roster.rosterInfo;
 			db().save().entities(roster, rosInfo);
@@ -316,36 +335,38 @@ public class RosterService {
 	
 	
 	@GET
-	@Path("/student/{studentId}")
+	@Path("/{id}/student/{acct}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRosterStudent(@PathParam("studentId") String acct) throws IOException {
+	public Response getRosterStudent(@PathParam("id")Long id, @PathParam("acct") String acct) throws IOException {
 		//here we need everything that the student page needs to get started
 		StudentConfig config = new StudentConfig();
-		config.assignments = db().load().type(StudentWork.class).filter("studentId", acct).limit(20).list();
-		config.attendance = db().load().type(StudentAttendance.class).filter("studentId", acct)
+		String studentId = id + acct;
+		config.assignments = db().load().type(StudentWork.class).filter("studentId", studentId).limit(20).list();
+		config.attendance = db().load().type(StudentAttendance.class).filter("studentId", studentId)
 							.order("-date").limit(20).list();
-		config.goals = db().load().type(StudentGoal.class).filter("studentId", acct)
+		config.goals = db().load().type(StudentGoal.class).filter("studentId", studentId)
 					.order("-dueDate").limit(20).list();
-		config.incidents=db().load().type(StudentIncident.class).filter("studentId", acct).limit(20).list();
+		config.incidents=db().load().type(StudentIncident.class).filter("studentId", studentId).limit(20).list();
 		
 		return Response.ok().entity(config).build();
 		
 	}
 
 	@POST
-	@Path("/student")
+	@Path("{id}/student/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveStudent(RosterStudent student) throws IOException {
-		
+	public Response saveStudent(@PathParam("id")Long id, RosterStudent student) throws IOException {
+		String stuId = id + student.acct;
 		//first things first
-		List<RosterStudent>rosStudents = db().load().type(RosterStudent.class).list();
-		for(RosterStudent rs2:rosStudents){
-			if(student.acct == rs2.acct){
+		RosterStudent rosStudent = db().load().type(RosterStudent.class).id(stuId).now();
+		
+			if(stuId== rosStudent.id){
+				student.id = stuId;
 				db().save().entity(student);
 				return Response.ok().entity(student).build();
 			}
-		}//inner for
+		
 		
 		
 		UserService us = UserServiceFactory.getUserService();
@@ -367,17 +388,17 @@ public class RosterService {
 			drive.permissions().create(studentFolder.getId(), perm).execute();
 			
 		//create the drive folders
-			
+		student.id = id + student.acct;
 		db().save().entity(student);
 
 		return Response.ok().entity(student).build();
 	}
 
 @GET
-@Path("/student")
+@Path("{id}/student")
 @Produces(MediaType.APPLICATION_JSON)
-public Response listStudents() throws IOException{
-		List<RosterStudent> rosStudents = db().load().type(RosterStudent.class).list();
+public Response listStudents(@PathParam("id")Long id) throws IOException{
+		List<RosterStudent> rosStudents = db().load().type(RosterStudent.class).filter("rosterId", id).list();
 		return Response.ok().entity(rosStudents).build();
 
 }
@@ -385,17 +406,17 @@ public Response listStudents() throws IOException{
 	
 
 	@POST
-	@Path("/student/{studentId}/incident")
+	@Path("{id}/student/{acct}/incident")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createIncidentForStudent(StudentIncident stuIncident,
-			@PathParam("studentId") String studentId) {
+	public Response createIncidentForStudent(@PathParam("id")Long id,
+			@PathParam("acct") String studentAcct, StudentIncident stuIncident) {
 
-		Roster result = ofy().load().type(Roster.class).first().now();
+		Roster result = ofy().load().type(Roster.class).id(id).now();
 
 		if (result != null) {
-			
-			RosterStudent student = ofy().load().key(Key.create(RosterStudent.class, studentId)).now();
+			String stuId = id + studentAcct;
+			RosterStudent student = ofy().load().key(Key.create(RosterStudent.class, stuId)).now();
 
 			if (student != null) {
 
@@ -416,71 +437,27 @@ public Response listStudents() throws IOException{
 		return Response.status(Status.NOT_FOUND).build();
 	}
 
-	@POST
-	@Path("/batch/student/incident")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response batchCreateStudentIncident(StudentIncident[] stuIncidents) {
-		
-		ArrayList<Key<RosterStudent>> keys = new ArrayList<Key<RosterStudent>>();
-
-		// save for batch save
-		ArrayList<RosterStudent> students = new ArrayList<RosterStudent>();
-		// obviously we need to serious validation
-		for (StudentIncident si : stuIncidents) {
-			keys.add(Key.create(RosterStudent.class, si.studentId));
-		}
-		students.addAll(db().load().keys(keys).values());
-		// complicated iteration ///
-		for (RosterStudent rs : students) {
-			// cycle through incidents and match
-			for (StudentIncident si : stuIncidents) {
-				if (rs.acct.equals(si.studentId)) {
-					if (si.points < 0) {
-						//null check 
-						if(rs.negPoints == null){
-							rs.negPoints = new Integer(0);
-						}
-						rs.negPoints += si.points;
-					} else {
-						if(rs.posPoints == null){
-							rs.posPoints = new Integer(0);
-						}
-						rs.posPoints += si.points;
-					}
-					break;
-				} // end if student match incident
-			} // end for incidents
-		} // end for students
-
-		// update the student points
-		db().save().entities(students);
-		ArrayList<StudentIncident> newIncidents = new ArrayList<>();
-		newIncidents.addAll(db().save().entities(stuIncidents).now().values());
-		return Response.ok().entity(newIncidents).build();
-	}
-
 
 	
 	@GET
-	@Path("/student/{studentId}/incident")
+	@Path("/{id}/student/{acct}/incident")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getStudentIncidents(@PathParam("studentId") Long studentId) {
-
+	public Response getStudentIncidents(@PathParam("id")Long id, @PathParam("acct") String studentAcct) {
+			String stuId = id + studentAcct;
 				List<StudentIncident> studentIncidents = db().load().type(StudentIncident.class)
-						.filter("studentId", studentId).list();
+						.filter("studentId", stuId).list();
 
 				return Response.ok().entity(studentIncidents).build();
 
 	}
 
 	@GET
-	@Path("/routine")
+	@Path("{id}/routine")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getClasstimeList() {
+	public Response getClasstimeList(@PathParam("id")Long id) {
 
-		Roster result = ofy().load().type(Roster.class).first().now();
+		Roster result = ofy().load().type(Roster.class).id(id).now();
 
 		if (result != null) {
 
@@ -495,19 +472,19 @@ public Response listStudents() throws IOException{
 	}
 	
 	@GET
-	@Path("/routinefull")
+	@Path("{id}/routinefull")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFullRoutineList(){
-		List<RoutineConfig> list = db().load().type(RoutineConfig.class).list();
+	public Response getFullRoutineList(@PathParam("id")Long id){
+		List<RoutineConfig> list = db().load().type(RoutineConfig.class).filter("rosterId", id).list();
 		return Response.ok().entity(list).build();
 	}
 
 	@GET
-	@Path("/routine/{subId}")
+	@Path("{id}/routine/{subId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getClassTime(@PathParam("subId") Long classtimeId) {
+	public Response getClassTime(@PathParam("id")Long id, @PathParam("subId") Long classtimeId) {
 
-		Roster result = ofy().load().type(Roster.class).first().now();
+		Roster result = ofy().load().type(Roster.class).id(id).now();
 
 		if (result != null) {
 				Routine routine = ofy().load().key(Key.create(Routine.class, classtimeId)).now();
@@ -521,11 +498,11 @@ public Response listStudents() throws IOException{
 	}
 
 	@POST
-	@Path("/routine/{subId}")
+	@Path("{id}/routine/{subId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createClassTime(FullRoutine fullRoutine) {
+	public Response createClassTime(@PathParam("id")Long id,FullRoutine fullRoutine) {
 
-		Roster result = ofy().load().type(Roster.class).first().now();
+		Roster result = ofy().load().type(Roster.class).id(id).now();
 
 		if (result != null) {
 
@@ -539,21 +516,21 @@ public Response listStudents() throws IOException{
 	}
 
 	@GET
-	@Path("/routine/{id}/seatingchart")
+	@Path("{id}/routine/{routineId}/seatingchart")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSeatingChart(@PathParam("id") Long id) {
+	public Response getSeatingChart(@PathParam("routineId") Long routineId) {
 		// TODO:check for roster blah blah
-		SeatingChart seatingChart = db().load().key(Key.create(SeatingChart.class, id)).now();
+		SeatingChart seatingChart = db().load().key(Key.create(SeatingChart.class, routineId)).now();
 		if (seatingChart == null) {
 			seatingChart = new SeatingChart();
-			seatingChart.id = id;
+			seatingChart.id = routineId;
 			db().save().entity(seatingChart);
 		}
 		return Response.ok().entity(seatingChart).build();
 	}
 
 	@POST
-	@Path("/routine/{id}/seatingchart")
+	@Path("{id}/routine/{routineIdd}/seatingchart")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveSeatingChart(RoutineConfig config,
@@ -564,16 +541,17 @@ public Response listStudents() throws IOException{
 	}
 
 	@GET
-	@Path("/schedule")
+	@Path("{id}/schedule")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSchedule() {
+	public Response getSchedule(@PathParam("id")Long id) {
 
 	
-		Schedule scheduleDB = db().load().type(Schedule.class).first().now();
+		Schedule scheduleDB = db().load().type(Schedule.class).id(id).now();
 		// in case of null create new
 		if (scheduleDB == null) {
 			scheduleDB = new Schedule();
-			RosterInfo roster = db().load().type(RosterInfo.class).first().now();
+			scheduleDB.id =id;
+			RosterInfo roster = db().load().type(RosterInfo.class).id(id).now();
 			scheduleDB.name = roster.name.equalsIgnoreCase("schoolevents")?"rosterEvents":roster.name;
 			//init with school schedule
 			UserService us = UserServiceFactory.getUserService();
@@ -599,7 +577,7 @@ public Response listStudents() throws IOException{
 	}
 
 	@POST
-	@Path("/schedule")
+	@Path("{id}/schedule")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response saveSchedule(Schedule schedule) {
@@ -612,15 +590,15 @@ public Response listStudents() throws IOException{
 	 */
 	
 	@GET
-	@Path("incident")
+	@Path("/{id}/incident")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response listIncidents(){
-		List<Incident> incidents = db().load().type(Incident.class).list();
+	public Response listIncidents(@PathParam("id") Long id){
+		List<Incident> incidents = db().load().type(Incident.class).filter("rosterId",id).list();
 		return Response.ok().entity(incidents).build();
 	}
 	
 	@POST
-	@Path("incident/")
+	@Path("/{id}/incident/")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createIncident(Incident incident){
@@ -632,7 +610,7 @@ public Response listStudents() throws IOException{
 	}
 	
 	@POST
-	@Path("/incident/{incidentId}")
+	@Path("/{id}/incident/{incidentId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateIncident(Incident incident){
@@ -641,7 +619,7 @@ public Response listStudents() throws IOException{
 	}
 	
 	@DELETE
-	@Path("/incident/{incidentId}")
+	@Path("/{id}/incident/{incidentId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response deleteIncident(@PathParam("incidentId") Long incidentId){
@@ -679,14 +657,15 @@ public Response listStudents() throws IOException{
 	}
 	
 	@GET
-	@Path("/attendance/{attendanceId}")
+	@Path("{id}/attendance/{attendanceId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response takeAttendance(@PathParam("attendanceId") String attendanceId){
+	public Response takeAttendance(@PathParam("id")Long id, @PathParam("attendanceId") String attendanceId){
 		Attendance attendance = db().load().type(Attendance.class).id(attendanceId).now();
 		
 		
 		if(attendance == null){
-			attendance = new Attendance();
+			attendance = new Attendance(id);
+			 
 		}
 		
 		System.out.println("Attendance: id=" + attendance.id );
@@ -699,7 +678,7 @@ public Response listStudents() throws IOException{
 	}
 	
 	@POST
-	@Path("/attendance/{attendanceId}")
+	@Path("/{id}/attendance/{attendanceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response submitAttendance(Attendance attendance){
@@ -724,7 +703,7 @@ public Response listStudents() throws IOException{
 	}
 	
 	@DELETE
-	@Path("attendance/{attendanceId}")
+	@Path("/{id}/attendance/{attendanceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_HTML)
 	public Response deleteAttendance(Attendance attendance){

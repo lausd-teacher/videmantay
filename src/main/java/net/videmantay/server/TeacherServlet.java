@@ -43,12 +43,8 @@ public class TeacherServlet extends HttpServlet {
 			res.sendRedirect("/auth");
 			return;
 		}
-		PeopleService people = GoogleUtils.people(cred);
-		Person person = people.people().get("people/me").setPersonFields("names,emailAddresses,photos").execute();
-		info.email = person.getEmailAddresses().get(0).getValue();
-		info.firstName = person.getNames().get(0).getGivenName();
-		info.lastName = person.getNames().get(0).getFamilyName();
-		info.img = person.getPhotos().get(0).getUrl();
+		
+		info.email = user.getEmail();
 		info.token = cred.getAccessToken();
 		info.logout = UserServiceFactory.getUserService().createLogoutURL("/");
 		

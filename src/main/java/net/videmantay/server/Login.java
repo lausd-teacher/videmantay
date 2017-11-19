@@ -28,7 +28,8 @@ public class Login extends HttpServlet{
 		UserService us = UserServiceFactory.getUserService();
 		User user = us.getCurrentUser();
 		if(user == null){
-			res.sendRedirect(us.createLoginURL("/login"));
+			String url = us.createLoginURL("/login");
+			res.sendRedirect(url);
 			return;
 		}
 		Credential cred = GoogleUtils.cred(user.getUserId());
@@ -45,7 +46,11 @@ public class Login extends HttpServlet{
 			cred.refreshToken();
 		}
     	
-		if(user.getEmail().equals("tdd6623@lausd.net") || user.getEmail().equals("youssef.elias@lausd.net") || user.getEmail().equals("roberto.partida@lausd.net")){
+		if(user.getEmail().equals("tdd6623@lausd.net") || 
+				user.getEmail().equals("youssef.elias@lausd.net") ||
+				user.getEmail().equals("robert.rodriguez@lausd.net")||
+				user.getEmail().equals("videmantay@gmail.com") ||
+				user.getEmail().equals("tanilo@videmantay.net")){
 			res.sendRedirect("/teacher");
 			return;
 		}else{

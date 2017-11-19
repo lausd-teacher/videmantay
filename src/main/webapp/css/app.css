@@ -51,7 +51,7 @@ div.ui-rotatable-handle {
 	border-radius: 100%;
 	background-size: 100%;
 	background-color: #f0f0f0;
-	background-image: url('/rotate.png');
+	background-image: url('/img/refresh-icon.svg');
 	background-repeat: no-repeat;
 	background-position: center;
 	box-shadow: 1px 1px 2x Black;
@@ -235,6 +235,16 @@ div.rosterStudent {
 	padding-top: 0.15em;
 }
 
+div.rosterStudent > div.studentHead >div.counterRotate{
+	height:4em;
+	width:4em;
+	min-height:3em;
+	min-width:3em;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+/*---- Student classroom Grid style ------------------*/
 div.rosterStudent.grid{
 	width:100%;
 	height:10em;
@@ -264,7 +274,10 @@ div.rosterStudent.grid > div.studentBody {
 	padding:1em;
 	text-align:center;
 }
+/*------------------end roster student grid style --------*/
 
+/*----------------- Roster student seating chart FLOOR----
+  this is only style for student on seating chart floor not on the side panel*/
 .rosterStudent.chart {
 	position: relative;
 	min-width: 3.95em;
@@ -286,6 +299,17 @@ div.rosterStudent.grid > div.studentBody {
 	{
 	border-style: none;
 	box-shadow: none;
+}
+/*-- end seating chart floor --------------*/
+/*-- roster   student  chart edit panel (side panel) ---*/
+div.rosterStudent.ui-draggable.ui-draggable-handle > div.studentHead > div.counterRotate{
+	height:3em;
+	widht:3em;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	position:absolute;
+	
 }
 
 
@@ -345,10 +369,15 @@ div.rosterStudent.absent {
 	top: -37px;
 }
 
+.desk .seat .rosterStudent .studentHead {
+	
+	
+}
 .desk .seat .rosterStudent .studentHead div.counterRotate {
 	position: absolute;
-	top: -1.25em;
+	top: -3.05em;
 	width: 3.5em;
+	z-index:1
 }
 
 .desk .seat .rosterStudent .studentBody div.counterRotate {

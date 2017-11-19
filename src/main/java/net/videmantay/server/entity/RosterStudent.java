@@ -12,12 +12,12 @@ import com.googlecode.objectify.annotation.Serialize;
 
 @Entity
 public class RosterStudent {
-	
+	@Id
+	public String id;//for right now simple id (rosterId + acct). later switch this to indexed compositeKey;
 	public String firstName;
 	public String lastName;
 	public String DOB;
 	public String picUrl;
-	@Id
 	public String acct;
 	@Serialize
 	public ArrayList<Thumbnail> thumbnails = new ArrayList<>();
