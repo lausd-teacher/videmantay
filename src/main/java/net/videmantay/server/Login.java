@@ -50,7 +50,8 @@ public class Login extends HttpServlet{
 				user.getEmail().equals("youssef.elias@lausd.net") ||
 				user.getEmail().equals("robert.rodriguez@lausd.net")||
 				user.getEmail().equals("videmantay@gmail.com") ||
-				user.getEmail().equals("tanilo@videmantay.net")){
+				user.getEmail().equals("tanilo@videmantay.net")||
+				user.getEmail().equals("dedguy21@gmail.com")){
 			res.sendRedirect("/teacher");
 			return;
 		}else{

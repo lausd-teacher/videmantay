@@ -21,6 +21,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import net.videmantay.server.entity.RosterInfo;
 import net.videmantay.server.entity.Schedule;
 
 import static net.videmantay.server.DB.db;
@@ -53,10 +54,13 @@ public class TeacherServlet extends HttpServlet {
 		String infoJson = mapper.writeValueAsString(info);
 		log.info("loginfo is " + infoJson);
 		
-		//teacher need access to default events lets push it on them
-		Schedule schoolEventsDB = db().load().type(Schedule.class).filter("name","schoolevents").first().now();
-		String schoolEvents = mapper.writeValueAsString(schoolEventsDB);
-		log.info("school events are: " + schoolEvents);
+		
+		//here you should list the roster if no roster make a demo 
+		java.util.List<RosterInfo> rosterDB = db().load().type(RosterInfo.class).filter("ownerId", user.getEmail()).list();
+		if(rosterDB == null || rosterDB.size() <= 0){
+			
+		}
+		String rostList = mapper.writeValueAsString(rosterDB);
 		
 		TemplateGen template = (TemplateGen) this.getServletContext().getAttribute("template");
 		res.setContentType("text/html");
@@ -65,7 +69,7 @@ public class TeacherServlet extends HttpServlet {
 		//populate the root with user profile
 		Map<String, Object> root = new HashMap<>();
 		root.put("info", infoJson);
-		root.put("schoolEvents", schoolEvents);
+		root.put("rosterList", rostList);
 		Template teacherPage = template.getTeacherPage();
 		
 			try {

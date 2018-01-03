@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
+<link rel="stylesheet" media="print"
+	href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.print.min.css">
+<link rel="stylesheet" href="teacher/css/animation.css"/>
+<link rel="stylesheet"  href="/teacher/css/material-icons.css"/>
+<link rel="stylesheet" href="/teacher/css/materialize.min.css" />
+<link rel="stylesheet"  href="/teacher/css/materialize.red.css" />
+<link rel="stylesheet" href="/teacher/css/overridecss.css" />
+<link rel="stylesheet" href="teacher/css/overridecss.red.css"/>
+<title>calendar</title>
+<style>
+/*body should have fixed width now scroll */
+body {
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	color: DimGray;
+	font-family: "Roboto", "San Serif";
+}
+
+body>div.container {
+	height: 95%;
+	width: 95%;
+}
+
+h2 {
+	text-align: center;
+	font-size: 1.75em;
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<br>
+		<section id="scheduleLegend">
+			<b>schedule:&nbsp;</b><span id="emptySchedule">You haven't
+				created a schedule yet. </span><a href="schedule.html">Let's get
+				started!</a>
+		</section>
+		<hr />
+		<br />
+		<div id="lessonPlans"></div>
+	</div>
+	<!-- end container -->
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+		integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+		crossorigin="anonymous"></script>
+	<!-- Compiled and minified JavaScript -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+	<script>
+   
+   //what we need here is the calendar events from google
+   var eventListJson;
+   /// an object where we store the schedule
+   var schedule = parent.currentClassroom.schedule;
+   //initialize the lessonPlanCalendar
+   var $lessonPlans = 	$('#lessonPlans').fullCalendar({defaultView:'agendaDay',firstDay:0,
+   			minTime:"07:00:00",maxTime:"21:00:00",slotDuration: '00:05:00',
+   			contentHeight:function(){return Math.floor($(window).height() * 0.8);},
+   			scrollTime:moment().format('HH:mm'),
+   			header:{center:'title', left:'today prev,next', right:"month,agendaWeek,agendaDay"}, 
+   			businessHours:[{start:"08:15", end:"14:43", dow:[1,3,4,5]}, {start:"08:15", end:"13:43", dow:[2]}],
+   			//now to write up the handlers
+   			editable:true,
+   			eventClick:function(event, jsEvent, view){},
+   			dayClick:function(day, jsEvent, view){
+   			}
+   			}); 
+   
+ //if schedule has items hide empty schedule and populate list after 
+   if(schedule && schedule.items.length > 0){
+	   $('#emptySchedule').hide();
+	   for(var i = 0; i < schedule.items.length; i++){
+		   schedule.items[i].rendering='background';
+		   var $chip = $('<div class="chip">'+schedule.items[i].title+'</div>');
+		   $chip.css('backgroundColor',schedule.items[i].color).css('marginRight', '0.5em');
+		   $('#scheduleLegend').append($chip);
+		   
+		   
+	   }
+	   
+	   $('#lessonPlans').fullCalendar('renderEvents', schedule.items, true);
+   }
+   //parent access test has passed 12/16/16
+   //so from gwt we can have access to objects
+   
+   //initialize the schedule calendar
+   //show only week agenda or day  agenda with only days in the heading
+   //title can go from weekly schedule to daily schedule according to the view			
+   </script>
+
+</body>
+</html>

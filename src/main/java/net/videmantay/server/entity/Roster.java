@@ -23,9 +23,6 @@ public class Roster implements Serializable{
 	@Id
 	public Long id;
 	
-	@Index
-	public String ownerId;
-	
 	public String sid;//schoologyId
 	
 	
@@ -33,14 +30,20 @@ public class Roster implements Serializable{
 	public String calendarId;
 	
 	public String teacherFolderId;
+	
+	@Serialize
+	public Schedule schedule;
 
 	@Serialize
 	public HashMap<String,String>folders = new HashMap<>();
 	
+	@Ignore
 	public Set<Routine> routines = new HashSet<>();
 
+	@Ignore
 	public Set<Incident>incidents= new HashSet<>();
 	
+	@Ignore
 	public RoutineConfig defaultRoutine;
 	
 	@Ignore
@@ -53,16 +56,8 @@ public class Roster implements Serializable{
 	public RosterInfo rosterInfo;
 	@Ignore
 	public TaskList tasks;
-	
-	
-	
-	public void load(){
-		//limit to 50 all entities
-		
-	}
-	
-	
 
+	
 	@SafeHtml
 	public Roster(){
 	

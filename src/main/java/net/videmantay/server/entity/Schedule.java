@@ -2,29 +2,21 @@ package net.videmantay.server.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.Serialize;
+import com.googlecode.objectify.annotation.*;
 
 @Entity
 public class Schedule implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1453954588792920511L;
+
 	@Id
 	public Long id;
-	
-	public String msg;
-	
-	@Index
-	public String name;
-	
 	@Serialize
-	public Map<String,ScheduleItem> items = new HashMap<>();
-	
-
-	
+	public List<ScheduleItem> items = new ArrayList<>();
+		
 }

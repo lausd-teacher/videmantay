@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Play with Schedule</title>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css">
+<link rel="stylesheet" media="print"
+	href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.print.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" />
+<style>
+body {
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	color: DimGray;
+	font-family: "Roboto", "San Serif";
+}
+
+body>div.container {
+	height: 95%;
+	width: 95%;
+}
+
+.fc-widget-header {
+	font-size: 1.25em;
+	font-family:;
+	color: DarkRed;
+}
+
+.fc-widget-content {
+	font-size: 0.99em;
+}
+
+input[type=text] {
+	font-size: 1.1em;
+	font-style: Roboto, Verdana;
+	color: White;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row valign-wrapper">
+			<div class="col s12 m8 l8 valign">
+				<h2 class="title">Schedule</h2>
+			</div>
+			<div class="col s12 m4 l4 valign">
+				<div id="updateScheduleBtn" 
+					class="waves-effect waves-light btn red darken-2 right"><a style="color: white" href="cal.html">Back to Calendar</a></div>
+			</div>
+		</div>
+		<hr />
+		<div id="scheduleCal">
+			<!-- This is the fullcalendar wrapper -->
+		</div>
+
+		<!--  Page Loader  -->
+		<div id="scheduleLoader" class="preloader-wrapper big">
+			<div class="spinner-layer spinner-blue-only">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+		</div>
+		<!--  end loader -->
+
+		<!--  Schedule Modal Form -->
+		<!-- Modal Structure -->
+		<div id="modalManager" class="modal modal-fixed-footer" style="background-color:Gray">
+			<!--  first content  in modal -->
+			<div id="scheduleModal" style="height: 100%; background-color: inherit; font-size: 1.5em; padding: 1.5em">
+				<form id="scheduleForm">
+					
+						<div style="margin-bottom:1.5em">
+							<input id="scheduleTitleInput" type="text" placeholder="title" />
+						</div>
+						<div style="margin-bottom:1em; padding:1em;"> 
+						<span style="width:48%;float:right"><input type="text" class="timepicker" id="toTime" placeholder="To" /></span>
+						<span style="width:48%;float:left"><input type="text" class="timepicker" id="fromTime" placeholder="From" /></span>
+							</div>
+						<div style="margin:1em">
+
+							<label style="font-size:1em; color:WhiteSmoke" for="scheduleColorInput">Color: </label><input id="scheduleColorInput" type="color" />
+						</div>
+						<div style="margin:1em">
+									<div style="position:relative; width:100%">
+										<h6 style="color:WhiteSmoke">Days of Weeks</h6>
+									</div>
+									<div style="position:relative">
+									<span style="margin:0.75em;margin-left:0.15em" ><input id="mon" type="checkbox" value="1"/><label for="mon">Mon</label></span>
+									<span style="margin:0.75em"><input id="tue" type="checkbox" value="2"/><label for="tue">Tue</label></span>
+									<span style="margin:0.75em"><input id="wed" type="checkbox" value="3"/><label for="wed">Wed</label></span>
+									<span style="margin:0.75em"><input id="thu" type="checkbox" value="4"/><label for="thu">Thu</label></span>
+									<span style="margin:0.75em"><input id="fri" type="checkbox" value="5"/><label for="fri">Fri</label></span>
+									</div>
+						</div>
+				</form>
+				</div>
+				<div class="modal-footer">
+					<a id="okScheduleBtn" href="#!"
+						class="modal-action modal-close waves-effect waves-green btn-flat ">Ok</a>
+					<a id="cancelScheduleBtn" href="#!"
+						class="modal-action modal-close waves-effect waves-green btn-flat ">Cancel</a>
+				</div>
+			</div>
+			<!--  second content in modal -->
+			<div id="itemDeleteModal" style="padding: 1.1em">
+				<h3>This event will be deleted</h3>
+				<h6>You will not be able to undo!</h6>
+				<div class="modal-footer">
+					<a id="okDeleteItemBtn" href="#!"
+						class="modal-action modal-close waves-effect waves-green btn-flat ">Ok</a>
+					<a id="cancelDeleteItemBtn" href="#!"
+						class="modal-action modal-close waves-effect waves-green btn-flat ">Cancel</a>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+	<!--  end container -->
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+		integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+		crossorigin="anonymous"></script>
+	<!-- Compiled and minified JavaScript -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+	<script>
+	
+	var $scheduleCal = $('#scheduleCal');
+	if(parent.currentClassroom.schedule ==null){
+		parent.currentClassroom.schedule = createSchedule();
+	}
+	var schedule = parent.currentClassroom.schedule;
+	
+	//var calEvent =[{title:'Work', start:moment('2018-01-02T09:30:00AM'),end:moment('2018-01-02T10:30:00AM')}];
+	$(function(){ //load the script
+		
+		 //initialize the schedule
+		  $scheduleCal.fullCalendar({
+			  defaultView:'agendaWeek', firstDay:1, minTime:"07:00:00", maxTime:"17:00:00",aspectRatio:1.55,
+			  header:{center:'agendaWeek,listWeek',left:'', right:'' },columnFormat:'ddd',allDaySlot:false,
+				weekends:false,slotDuration:'00:05',dragOpacity:0.5,listDayAltFormat:false,
+				//set scrolltime
+				scrollTime: moment().format("HH:mm"),
+				businessHours:[{dow:[1,3,4,5],start:'08:15',end:'14:43'}, {dow:[2],start:'08:15',end:'13:42'}],
+			  //hide the day header in day view
+			  viewRender: function(view){
+				  if(view.name =='agendaDay'){
+					  $('th.fc-day-header').hide();
+				  }else{
+					  $('th.fc-day-header').show();
+				  }
+			  },
+			  //event source
+			  events:schedule.items,
+			  //now handle object update events
+			  //create a new event on dayClick
+			 /*  editable:true,
+			 eventDrop:function(event){
+				 console.log('event id ' + event.id);
+				 var item = getItemById(event.id);
+				 item.update(event);
+				 $('#updateSchedultBtn').removeClass('disabled');
+			 }, */
+			 eventResize:function(event){
+				 var item = getItemById(event.id);
+				 console.log('event resize; event is ');
+				 console.log(item);
+				 item.update(event);
+				 $('#updateScheduleBtn').removeClass('disabled');
+			 },
+			  eventClick:function(event){
+				  showItemDeleteModal(event);
+				  $('#updateScheduleBtn').removeClass('disabled');
+			  },
+			  dayClick:function(date, jsEvent, view){
+				  jsEvent.stopPropagation();
+				  jsEvent.preventDefault();
+				  console.log("INFO: fullcalendar day click called");
+				  console.log(date);
+				  newItem = scheduleItem();
+				  newItem.start = date.format("hh:mmA");
+				  newItem.dow.push(date.day());
+				  console.log(date.weekday());
+				  console.log(newItem);
+				showScheduleForm(newItem);
+				return;
+			  },
+			  selectable: true,
+				selectHelper: true ,
+		  });
+		  
+		  //initialize the color picker for the form
+		  $("#scheduleColorInput").spectrum({
+			    showPaletteOnly: true,
+			    togglePaletteOnly: true,
+			    togglePaletteMoreText: 'more',
+			    togglePaletteLessText: 'less',
+			    hideAfterPaletteSelect:true,
+			    clickoutFiresChange: true,
+			    change:function(){
+			    	//set backgroundColor for scheduleForm
+			    	$('#modalManager').css('backgroundColor', $('#scheduleColorInput').spectrum('get'));
+			    },
+			    color: 'Gray',
+			    palette: [
+			        ['DimGray', 'DarkBlue', 'DarkViolet', 'DarkRed','DarkOrange', 'DarkGoldenRod','DarkGreen'],
+			        ['Gray', 'Blue', 'Violet', 'Red', 'Orange', 'GoldenRod', 'Green']
+			    ]
+			});
+		  
+		  //init timepicker
+		  $('input.timepicker').pickatime({
+    default: 'now', // Set default time: 'now', '1:30AM', '16:30'
+    twelvehour: true, // Use AM/PM or 24-hour format
+    donetext: 'OK', // text for done-button
+    cleartext: 'Clear', // text for clear-button
+    canceltext: 'Cancel', // Text for cancel-button
+    autoclose: true, // automatic close timepicker
+    ampmclickable: true, // make AM PM clickable
+  });
+		  
+		  //init the modal
+		  $('#modalManager').modal({});
+		  
+		
+		 
+		  //add click to ok btn
+		  $('#okScheduleBtn').on('click', okScheduleBtn);
+		  
+		  //add click to cancel btn
+		  $('#cancelScheduleBtn').on('click', hideScheduleForm);
+		 
+		
+		  
+		  //add click
+		  $('#cancelDeleteItemBtn').on('click',hideItemDeleteModal);
+		 
+	});// end load script ///////////
+	
+	
+		  //access to Schedule object
+		  function createSchedule(){
+			 return{
+			  id : parent.currentRoster.id,
+			 items:[]
+			 };
+		  }
+		  //access to ScheduleItem
+		  function scheduleItem(){
+			 return{
+				 id : new Date().valueOf(),
+					title : '',
+					start : '',
+					end : '',
+					dow:[],
+					rendering:null,
+					backgroundColor : '',
+					borderColor : '',
+					//array of string
+					className :['schedule-item'],
+					textColor : '',
+					color : ''			 	
+				};
+		  }
+		  
+		  //schedule form
+		  function showScheduleForm(item){
+			  console.log('show schedule form is called');
+			  $('#modalManager').modal('open');
+			  $('#scheduleModal').show();
+			  $('#itemDeleteModal').hide();
+			  $('#scheduleForm').data('item', item);
+			  $('#fromTime').val( item.start);
+				var $checkboxes =  $('input[type=checkbox]');
+				for(var i = 0; i < $checkboxes.length; i++){
+					if(Number($($checkboxes.get(i)).val()) == item.dow[0]){
+						$($checkboxes.get(i)).prop('checked', true);
+					}
+				}
+			  console.log('schedule form data is : ');
+			  console.log($('#scheduleForm').data('item'));
+			  
+		  }
+		  
+		  function okScheduleBtn(){
+			 
+			  //get form data
+			  var formData = $('#scheduleForm').data('item');
+	
+			  //get title value
+			  formData.title = $('#scheduleTitleInput').val();
+			  //get color value
+			  formData.color = $('#scheduleColorInput').spectrum('get').toHexString();
+				//var dateStr = formData.start.format('YYYY-MM-DD')+'T';
+			  //formData.start = moment( dateStr+ $('#fromTime').val() );
+			 formData.start = getTime24($('#fromTime').val());
+			  formData.end = getTime24($('#toTime').val());
+			  $('input[type=checkbox]:checked').each(function(){
+				  
+					var match;
+					var num = Number($(this).val());
+				  for(var i = 0; i<formData.dow.length; i++){
+					match = (formData.dow[i] == num);
+					if(match){
+						return;
+					}
+				  }//end for there is no match push data
+				  formData.dow.push(num);
+			  });
+			  
+			  console.log("ok button pushsed here is the form data: ");
+			  console.log(formData);
+			 $scheduleCal.fullCalendar('renderEvent',formData,true);
+			 schedule.items.push(formData);
+			  hideScheduleForm();
+		  }
+		  
+		  function hideScheduleForm(){
+			  var $modal = $('#modalManager');
+			  $modal.modal('close');
+			  $modal.css('backgroundColor', 'Gray');
+			  $('#scheduleModal').hide();
+			  $('#scheduleForm').get(0).reset();
+			  $('#scheduleColorInput').spectrum('set','Gray')//default color;
+		  }
+		  function showItemDeleteModal(event){
+			  $('#modalManager').modal('open');
+			  $('#itemDeleteModal').show();
+			  $('#scheduleModal').hide();
+			  $('#itemDeleteModal').data('event', event);
+		  }
+		  
+		  
+		  
+		  function hideItemDeleteModal(){
+			  $('#itemDeleteModal').modal('close');
+		  }
+		  function saveSchedule(){
+			  $.ajax({
+				  
+			  });
+		  }
+			  
+			function showLoader(){
+				$('#scheduleLoader').show();
+			}
+			
+			function hideLoader(){
+				$('#scheduleLoader').hide();
+			}
+			
+			function getTime24(ampmTime){
+				var time =  moment().format('YYYY-MM-DD')+'T'+ ampmTime;
+				console.log('am/pm time is ' + time);
+				return moment(time).format('HH:mm');
+			}
+			
+			
+	</script>
+</body>
+</html>

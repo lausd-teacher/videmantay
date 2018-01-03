@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -71,10 +76,99 @@ public class RosterService {
 
 
 	
-
+/* Here is where we expect to get roster list*/
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRoster() throws Exception {
+	public Response getRosters() throws Exception {
+		UserService us = UserServiceFactory.getUserService();
+		User user = us.getCurrentUser();
+		
+		
+		List<RosterInfo> response = db().load().type(RosterInfo.class).filter("ownerId", user.getEmail()).list();
+		/*if(response == null || response.size() <= 0){
+		
+			
+				//create a demo if null
+				Roster roster = new Roster();
+				RosterInfo rosterInfo = new RosterInfo();
+				
+				rosterInfo.description = "Demo Roster for the 2017 - 2018 school year.";
+				rosterInfo.name = "Demo Roster";
+				rosterInfo.start="2017-08-14";
+				rosterInfo.end = "2018-06-11";
+				rosterInfo.roomNum = "230";
+				
+				
+				//response issued its id here /////////
+				 rosterInfo.id = db().save().entity(rosterInfo).now().getId();
+				 roster.id = rosterInfo.id;
+				 log.info("roster id is " + roster.id);
+			
+				
+				//save the roster async
+				db().save().entity(roster).now();
+				response.add(rosterInfo);
+		}*/
+			return Response.status(Status.CREATED).entity(response).build();
+		
+		}
+	
+	private boolean ownsRoster(Long id, String userId){
+		RosterInfo rosInfo = db().load().type(RosterInfo.class).id(id).now();
+		return rosInfo.ownerId.equalsIgnoreCase(userId);
+	}
+	
+	@GET
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response  getRoster(@PathParam("id")Long id) throws IOException{
+		
+		UserService us = UserServiceFactory.getUserService();
+		User user = us.getCurrentUser();
+		
+			Roster response = db().load().type(Roster.class).id(id).now();
+			if(ownsRoster(id, user.getEmail())){
+			response.routines.addAll(db().load().type(Routine.class).filter("rosterId", id).list());
+			for(Routine r:response.routines){
+				if(r.isDefault()){
+					response.defaultRoutine = db().load().type(RoutineConfig.class).id(r.id).now();
+					response.defaultRoutine.routine = r;
+					break;
+				}
+			}//end for
+			response.incidents.addAll(db().load().type(Incident.class).filter("rosterId", id).list());
+			//response.tasks = tasks.tasklists().get(response.taskListId).execute();
+			//response.rosterInfo = db().load().type(RosterInfo.class).first().now();
+			//load students if there are any
+			
+		
+		
+			Attendance attendance = db().load().type(Attendance.class).id(response.id + new SimpleDateFormat("yyyy-MM-dd").format(new Date())).now();
+			if(attendance == null){
+				attendance = new Attendance(response.id);
+				db().save().entity(attendance);
+			}
+			response.attendance = attendance; 
+			
+			//load students
+			response.students = db().load().type(RosterStudent.class).filter("rosterId", id).list();
+			if(response.students != null && response.students.size() > 0){
+				for(RosterStudent r:response.students){
+					attendance.allStudents.add(r.acct);
+				}
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			String repJson = mapper.writeValueAsString(response);
+		log.info("response in json is " + repJson );
+		return Response.ok().entity(response).build();
+			}
+			return Response.status(Status.BAD_REQUEST).build();
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createRoster(final RosterInfo rosterInfo)throws IOException{
 		
 		UserService us = UserServiceFactory.getUserService();
 		User user = us.getCurrentUser();
@@ -84,252 +178,201 @@ public class RosterService {
 		Drive drive = GoogleUtils.drive(cred);
 		PeopleService people = GoogleUtils.people(cred);
 		com.google.api.services.calendar.Calendar calendar = GoogleUtils.calendar(cred);
+		Person me = people.people().get("people/me").setPersonFields("names,emailAddresses,photos").execute();
 		
-		Roster response = db().load().type(Roster.class).filter("ownerId", user.getEmail()).first().now();
-		if(response == null){
+		rosterInfo.ownerId = user.getEmail();
+		rosterInfo.teacherInfo.name =  me.getNames().get(0).getHonorificPrefix()+ " " + me.getNames().get(0).getFamilyName();
+		//rosterInfo.teacherInfo.grade = "5";
+		rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
+		rosterInfo.id = db().save().entity(rosterInfo).now().getId();
+		Roster roster = new Roster();
+		roster.id = rosterInfo.id;
 		
-			
-				response = new Roster();
-				 getDemo(response);
-				
-				
-				response.ownerId = user.getEmail();
-				RosterInfo rosterInfo = new RosterInfo();
-				
-				Person me = people.people().get("people/me").setPersonFields("names,emailAddresses,photos").execute();
-				rosterInfo.description = "Roster for the 2017 - 2018 school year.";
-				rosterInfo.name = "2017-2018 5th grade";
-				rosterInfo.start="2017-08-14";
-				rosterInfo.end = "2018-06-11";
-				rosterInfo.roomNum = "230";
-				rosterInfo.teacherInfo.name =  "Mr." + me.getNames().get(0).getFamilyName();
-				rosterInfo.teacherInfo.grade = "5";
-				rosterInfo.teacherInfo.picUrl = me.getPhotos().get(0).getUrl();
-				
-				//response issued its id here /////////
-				response.id = rosterInfo.id = db().save().entity(rosterInfo).now().getId();
-				
-				if(response.calendarId == null || response.calendarId.isEmpty()){
-					Calendar cal = new Calendar();
-					cal.setSummary(rosterInfo.name);
-					cal.setDescription(rosterInfo.description);
-					cal = calendar.calendars().insert(cal).execute();
-					response.calendarId = cal.getId();
-				}
-				TaskList taskList = new TaskList();
-				taskList.setTitle(rosterInfo.name);
-				taskList = tasks.tasklists().insert(taskList).execute();
-				Task task = new Task();
-				task.setTitle("Add Students");
-				task.setNotes("add students to roster");
-				tasks.tasks().insert(taskList.getId(), task).execute();
-				response.taskListId  = taskList.getId();
-				
-				if(response.teacherFolderId == null||response.teacherFolderId.isEmpty()){
-					File teacherFolder = GoogleUtils.folder("Mr_V_2017");
-					teacherFolder = drive.files().create(teacherFolder).execute();
-					response.teacherFolderId = teacherFolder.getId();
-				}
-				File studentFolder = GoogleUtils.folder("Students");
-				studentFolder.setParents(ImmutableList.of(response.teacherFolderId));
-				studentFolder = drive.files().create(studentFolder).execute();
-				
-				File sharedFolder = GoogleUtils.folder("Public");
-				sharedFolder.setParents(ImmutableList.of(response.teacherFolderId));
-				sharedFolder = drive.files().create(sharedFolder).execute();
-				Permission publicPerms =new Permission();
-				publicPerms.setType("anyone");
-				publicPerms.setRole("reader");
-				drive.permissions().create(sharedFolder.getId(), publicPerms).execute();
-				
-				
-				
-				response.folders.put("public",sharedFolder.getId());
-				response.folders.put("students" ,studentFolder.getId());
-				
-				
-				
-				ArrayList<Incident> incidents = new ArrayList<>();
-				Incident incident;
-				// we also need to create default incidents here too
-				// positive list////////
-				// 1. turned in hw - 1px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Turned in HW");
-				incident.setPoints(1);
-				incident.setImageUrl("yellowBeaker");
-				incidents.add(incident);
-				// 2. paricipatation -1px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Participation");
-				incident.setPoints(1);
-				incident.setImageUrl("redBeaker");
-				incidents.add(incident);
-				// 3. help others -3px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Helping others");
-				incident.setPoints(3);
-				incident.setImageUrl("scienceBoy");
-				incidents.add(incident);
-				// 4. took responsibility -2px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Taking responsibility");
-				incident.setPoints(2);
-				incident.setImageUrl("rocket");
-				incidents.add(incident);
-				// 5. shared ideas -1px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Shared idea");
-				incident.setPoints(1);
-				incident.setImageUrl("doctor");
-				incidents.add(incident);
-				// 6. listened attentively -5px;
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Listened attentively");
-				incident.setPoints(1);
-				incident.setImageUrl("scientist");
-				incidents.add(incident);
-				// negative list///////////
-				// 1. no hw -1
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("No HW");
-				incident.setPoints(-1);
-				incident.setImageUrl("noHW");
-				incidents.add(incident);
-				// 2. interrupted -1
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Interrupted");
-				incident.setPoints(-1);
-				incident.setImageUrl("thermometerPlain");
-				incidents.add(incident);
-				// 3. shouted out -3px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Shouting out");
-				incident.setPoints(-3);
-				incident.setImageUrl("yellowBeaker");
-				incidents.add(incident);
-				// 4. distracted -2px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("New Incident");
-				incident.setPoints(-2);
-				incident.setImageUrl("yellowRadioactive");
-				incidents.add(incident);
-				// 5. bathroom - 1px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Bathroom break");
-				incident.setPoints(-1);
-				incident.setImageUrl("clipboard");
-				incidents.add(incident);
-				// 6. fighting -5px
-				incident = new Incident();
-				incident.rosterId = response.id;
-				incident.setName("Fighting");
-				incident.setPoints(-5);
-				incident.setImageUrl("brokenglassWarning");
-				incidents.add(incident);
-				
-				response.incidents.addAll(db().save().entities(incidents).now().values());
-				
-				Routine defaultTime = new Routine();
-				defaultTime.rosterId = response.id;
-				defaultTime.setDefault(true);
-				defaultTime.setDescript("Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
-							" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.");
-				defaultTime.title = "Class Routine";
-				defaultTime.setDefault(true);
-				defaultTime.id = db().save().entity(defaultTime).now().getId();
-				RoutineConfig ctConfig = new RoutineConfig();
-				ctConfig.id = defaultTime.id;
-				SeatingChart seatingChart = new SeatingChart();
-				seatingChart.id = defaultTime.id;
-				db().save().entities(seatingChart, ctConfig);
-				response.defaultRoutine = ctConfig;
-				response.rosterInfo = rosterInfo;
-				//save the roster async
-				db().save().entity(response);
-		}else{
-			response.routines.addAll(db().load().type(Routine.class).list());
-			for(Routine r:response.routines){
-				if(r.isDefault()){
-					response.defaultRoutine = db().load().type(RoutineConfig.class).id(r.id).now();
-					response.defaultRoutine.routine = r;
-					break;
-				}
-			}//end for
-			response.incidents.addAll(db().load().type(Incident.class).list());
-			//response.tasks = tasks.tasklists().get(response.taskListId).execute();
-			response.rosterInfo = db().load().type(RosterInfo.class).first().now();
-			//load students if there are any
-			
+		if(roster.calendarId == null || roster.calendarId.isEmpty()){
+			Calendar cal = new Calendar();
+			cal.setSummary(rosterInfo.name);
+			cal.setDescription(rosterInfo.description);
+			cal = calendar.calendars().insert(cal).execute();
+			roster.calendarId = cal.getId();
 		}
+		TaskList taskList = new TaskList();
+		taskList.setTitle(rosterInfo.name);
+		taskList = tasks.tasklists().insert(taskList).execute();
+		Task task = new Task();
+		task.setTitle("Add Students");
+		task.setNotes("add students to roster");
+		tasks.tasks().insert(taskList.getId(), task).execute();
+		roster.taskListId  = taskList.getId();
 		
-			Attendance attendance = db().load().type(Attendance.class).id(response.id + new SimpleDateFormat("yyyy-MM-dd").format(new Date())).now();
-			if(attendance == null){
-				attendance = new Attendance(response.id);
-				db().save().entity(attendance);
-			}
-			response.attendance = attendance; 
-			//load students
-			response.students = db().load().type(RosterStudent.class).list();
-			if(response.students != null && response.students.size() > 0){
-				for(RosterStudent r:response.students){
-					attendance.allStudents.add(r.acct);
-				}
-			}
-			return Response.status(Status.CREATED).entity(response).build();
-		
+		if(roster.teacherFolderId == null||roster.teacherFolderId.isEmpty()){
+			File teacherFolder = GoogleUtils.folder("Routinely");
+			teacherFolder = drive.files().create(teacherFolder).execute();
+			roster.teacherFolderId = teacherFolder.getId();
 		}
-	
-	
-	public void getDemo(Roster roster){
-		List<RosterStudent> students = new ArrayList<RosterStudent>();
-		RosterStudent student1 = new RosterStudent();
-		student1.acct = "fake@studentemail.com";
-		student1.firstName = "Youssef";
-		student1.lastName = "Elias";
-		student1.currentSummary = "Youssef is a very good student and really loves programming.";
-		student1.rosterId = roster.id;
-		student1.id = roster.id+student1.acct;
-		students.add(student1);
+		File studentFolder = GoogleUtils.folder("Students");
+		studentFolder.setParents(ImmutableList.of(roster.teacherFolderId));
+		studentFolder = drive.files().create(studentFolder).execute();
 		
-		RosterStudent student11 = new RosterStudent();
-		student11.acct = "fake2@studentemail.com";
-		student11.firstName = "Robert";
-		student11.lastName = "Rodriguez";
-		student11.currentSummary = "Robert is a very good student and awlays follows directions.";
-		student11.rosterId = roster.id;
-		student11.id = roster.id+student11.acct;
-		students.add(student11);
+		File sharedFolder = GoogleUtils.folder("Public");
+		sharedFolder.setParents(ImmutableList.of(roster.teacherFolderId));
+		sharedFolder = drive.files().create(sharedFolder).execute();
+		Permission publicPerms =new Permission();
+		publicPerms.setType("anyone");
+		publicPerms.setRole("reader");
+		drive.permissions().create(sharedFolder.getId(), publicPerms).execute();
 		
-		RosterStudent student2 = new RosterStudent();
-		student2.acct = "fake1@studentemail.com";
-		student2.firstName = "Lee";
-		student2.lastName = "ViDemantay";
-		student2.currentSummary = "Lee needs support when focusing on a taks. Constant redirection is key for him to complete even the  most mundane task.";
-		student2.rosterId = roster.id;
-		student2.id = roster.id+student2.acct;
-		students.add(student2);
 		
-		db().save().entities(students);
-		roster.students = students;
+		
+		roster.folders.put("public",sharedFolder.getId());
+		roster.folders.put("students" ,studentFolder.getId());
+		Schedule schedule = new Schedule();
+		ScheduleItem recess = new ScheduleItem();
+		recess.title = "Recess";
+		recess.backgroundColor = "Gray";
+		recess.dow.addAll(ImmutableList.of(1, 2, 3, 4, 5));
+		switch(rosterInfo.teacherInfo.grade){
+		case "K": 
+		case "1":
+		case "2": recess.start = "9:50am"; recess.end = "10:10am";break;
+		default: recess.start = "10:15am"; recess.end = "10:35am";
+		}
+		schedule.items.add(recess);
+		
+		ScheduleItem lunch = new ScheduleItem();
+		lunch.title = "Lunch";
+		lunch.backgroundColor = "Gray";
+		lunch.dow.addAll(ImmutableList.of(1, 2, 3, 4, 5));
+		switch(rosterInfo.teacherInfo.grade){
+		case "K": 
+		case "1":lunch.start = ""; lunch.end = "";break;
+		case "3":
+		case "2": lunch.start = ""; lunch.end = "";break;
+		default: lunch.start = ""; lunch.end = "";
+		}
+		schedule.items.add(lunch);
+		
+		
+		ArrayList<Incident> incidents = new ArrayList<>();
+		Incident incident;
+		// we also need to create default incidents here too
+		// positive list////////
+		// 1. turned in hw - 1px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Turned in HW");
+		incident.setPoints(1);
+		incident.setImageUrl("yellowBeaker");
+		incidents.add(incident);
+		// 2. paricipatation -1px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Participation");
+		incident.setPoints(1);
+		incident.setImageUrl("redBeaker");
+		incidents.add(incident);
+		// 3. help others -3px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Helping others");
+		incident.setPoints(3);
+		incident.setImageUrl("scienceBoy");
+		incidents.add(incident);
+		// 4. took responsibility -2px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Taking responsibility");
+		incident.setPoints(2);
+		incident.setImageUrl("rocket");
+		incidents.add(incident);
+		// 5. shared ideas -1px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Shared idea");
+		incident.setPoints(1);
+		incident.setImageUrl("doctor");
+		incidents.add(incident);
+		// 6. listened attentively -5px;
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Listened attentively");
+		incident.setPoints(1);
+		incident.setImageUrl("scientist");
+		incidents.add(incident);
+		// negative list///////////
+		// 1. no hw -1
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("No HW");
+		incident.setPoints(-1);
+		incident.setImageUrl("noHW");
+		incidents.add(incident);
+		// 2. interrupted -1
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Interrupted");
+		incident.setPoints(-1);
+		incident.setImageUrl("thermometerPlain");
+		incidents.add(incident);
+		// 3. shouted out -3px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Shouting out");
+		incident.setPoints(-3);
+		incident.setImageUrl("yellowBeaker");
+		incidents.add(incident);
+		// 4. distracted -2px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("New Incident");
+		incident.setPoints(-2);
+		incident.setImageUrl("yellowRadioactive");
+		incidents.add(incident);
+		// 5. bathroom - 1px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Bathroom break");
+		incident.setPoints(-1);
+		incident.setImageUrl("clipboard");
+		incidents.add(incident);
+		// 6. fighting -5px
+		incident = new Incident();
+		incident.rosterId = roster.id;
+		incident.setName("Fighting");
+		incident.setPoints(-5);
+		incident.setImageUrl("brokenglassWarning");
+		incidents.add(incident);
+		
+		roster.incidents.addAll(db().save().entities(incidents).now().values());
+		
+		Routine defaultTime = new Routine();
+		defaultTime.rosterId = roster.id;
+		defaultTime.setDefault(true);
+		defaultTime.setDescript("Routines refer to a set of procedures, groups, and stations that help students transition form one task to the next." +
+					" \" Carpet Time\" , \"Author's Chair\", \"Gallery Walks\" are all example of routines.");
+		defaultTime.title = "Class Routine";
+		defaultTime.setDefault(true);
+		defaultTime.id = db().save().entity(defaultTime).now().getId();
+		RoutineConfig ctConfig = new RoutineConfig();
+		ctConfig.id = defaultTime.id;
+		SeatingChart seatingChart = new SeatingChart();
+		seatingChart.id = defaultTime.id;
+		db().save().entities(seatingChart, ctConfig);
+		roster.defaultRoutine = ctConfig;
+		
+		db().save().entity(roster);
+		//return rosterInfo  and populate client grid
+		return Response.ok().entity(rosterInfo).build();
+		
 	}
 	
 	@POST
 	@Path("/{id}")
-	public Response updateRoster(final Roster roster) throws IOException{
-			RosterInfo rosInfo = roster.rosterInfo;
-			db().save().entities(roster, rosInfo);
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateRoster(final RosterInfo roster) throws IOException{
+			//TODO: Validate the RosterInfo before persisting.
+			roster.ownerId = UserServiceFactory.getUserService().getCurrentUser().getEmail();
+			db().save().entity(roster).now().getId();
 			return Response.ok().entity(roster).build();
 	}
 	
@@ -461,7 +504,7 @@ public Response listStudents(@PathParam("id")Long id) throws IOException{
 
 		if (result != null) {
 
-			List<Routine> routineList = ofy().load().type(Routine.class).list();
+			List<Routine> routineList = ofy().load().type(Routine.class).filter("rosterId", id).list();
 			
 			
 			return Response.ok().entity(routineList).build();
@@ -471,24 +514,16 @@ public Response listStudents(@PathParam("id")Long id) throws IOException{
 
 	}
 	
-	@GET
-	@Path("{id}/routinefull")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFullRoutineList(@PathParam("id")Long id){
-		List<RoutineConfig> list = db().load().type(RoutineConfig.class).filter("rosterId", id).list();
-		return Response.ok().entity(list).build();
-	}
-
+	
 	@GET
 	@Path("{id}/routine/{subId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getClassTime(@PathParam("id")Long id, @PathParam("subId") Long classtimeId) {
+	public Response getClassTime(@PathParam("id")Long id, Routine routine) {
 
 		Roster result = ofy().load().type(Roster.class).id(id).now();
 
 		if (result != null) {
-				Routine routine = ofy().load().key(Key.create(Routine.class, classtimeId)).now();
-				RoutineConfig config = ofy().load().key(Key.create(RoutineConfig.class,classtimeId)).now();
+				RoutineConfig config = ofy().load().key(Key.create(RoutineConfig.class,routine.id)).now();
 			
 				return Response.ok().entity(new FullRoutine(routine,config)).build();
 		}else{
@@ -530,7 +565,7 @@ public Response listStudents(@PathParam("id")Long id) throws IOException{
 	}
 
 	@POST
-	@Path("{id}/routine/{routineIdd}/seatingchart")
+	@Path("{id}/routine/{routineId}/seatingchart")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveSeatingChart(RoutineConfig config,
@@ -540,54 +575,7 @@ public Response listStudents(@PathParam("id")Long id) throws IOException{
 		return Response.ok().build();
 	}
 
-	@GET
-	@Path("{id}/schedule")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSchedule(@PathParam("id")Long id) {
-
 	
-		Schedule scheduleDB = db().load().type(Schedule.class).id(id).now();
-		// in case of null create new
-		if (scheduleDB == null) {
-			scheduleDB = new Schedule();
-			scheduleDB.id =id;
-			RosterInfo roster = db().load().type(RosterInfo.class).id(id).now();
-			scheduleDB.name = roster.name.equalsIgnoreCase("schoolevents")?"rosterEvents":roster.name;
-			//init with school schedule
-			UserService us = UserServiceFactory.getUserService();
-			User user = us.getCurrentUser();
-			
-			ScheduleItem recess = new ScheduleItem();
-			recess.title = "Recess" ; 
-			recess.color = "gray";
-			scheduleDB.items.put("Recess",recess);
-			ScheduleItem lunch = new ScheduleItem();
-			lunch.title = "Lunch" ;
-			lunch.color = "gray";
-			scheduleDB.items.put("Lunch",lunch);
-			
-			 recess.start = "10:15"; recess.end="10:35";
-			lunch.start = "12:10"; lunch.end="12:55";
-			
-			db().save().entity(scheduleDB).now().getId();
-		}
-		
-		return Response.ok().entity(scheduleDB).build();
-
-	}
-
-	@POST
-	@Path("{id}/schedule")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response saveSchedule(Schedule schedule) {
-			db().save().entity(schedule).now().getId();
-			return Response.ok().build();
-	}
-	/*
-	 * Every roster will always have one schedule so it can never be deleted
-	 * just changed
-	 */
 	
 	@GET
 	@Path("/{id}/incident")
