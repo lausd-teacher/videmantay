@@ -66,13 +66,26 @@ h2 {
    var eventListJson;
    /// an object where we store the schedule
    var schedule = parent.currentClassroom.schedule;
+   var renderSchedule = [];
+   if(schedule){
+  for(var i =0; i < schedule.items.length; i++){
+	  var item = {};
+	  item.title = schedule.items[i].title;
+	  item.start = schedule.items[i].start;
+	  item.end = schedule.items[i].end;
+	  item.color = schedule.items[i].color;
+	  item.dow = schedule.items[i].dow;
+	  item.className = schedule.items[i].className;
+	  item.rendering = 'background';
+	 renderSchedule.push(item);
+  }
+  console.log(renderSchedule);
+   }
    //initialize the lessonPlanCalendar
-   var $lessonPlans = 	$('#lessonPlans').fullCalendar({defaultView:'agendaDay',firstDay:0,
+   var $lessonPlans = 	$('#lessonPlans').fullCalendar({defaultView:'agendaDay',firstDay:1,
    			minTime:"07:00:00",maxTime:"21:00:00",slotDuration: '00:05:00',
    			contentHeight:function(){return Math.floor($(window).height() * 0.8);},
-   			scrollTime:moment().format('HH:mm'),
    			header:{center:'title', left:'today prev,next', right:"month,agendaWeek,agendaDay"}, 
-   			businessHours:[{start:"08:15", end:"14:43", dow:[1,3,4,5]}, {start:"08:15", end:"13:43", dow:[2]}],
    			//now to write up the handlers
    			editable:true,
    			eventClick:function(event, jsEvent, view){},
@@ -81,18 +94,17 @@ h2 {
    			}); 
    
  //if schedule has items hide empty schedule and populate list after 
-   if(schedule && schedule.items.length > 0){
+   if(renderSchedule && renderSchedule.length > 0){
 	   $('#emptySchedule').hide();
-	   for(var i = 0; i < schedule.items.length; i++){
-		   schedule.items[i].rendering='background';
-		   var $chip = $('<div class="chip">'+schedule.items[i].title+'</div>');
-		   $chip.css('backgroundColor',schedule.items[i].color).css('marginRight', '0.5em');
+	   for(var i = 0; i < renderSchedule.length; i++){
+		   renderSchedule[i].rendering='background';
+		   var $chip = $('<div class="chip"><span>'+renderSchedule[i].title +'</span></div>');
+		   $chip.css('backgroundColor',renderSchedule[i].color).css('marginRight', '0.5em').css("color", "WhiteSmoke");
 		   $('#scheduleLegend').append($chip);
-		   
-		   
+		   console.log('cycling through for ' + i + ' times.')
 	   }
-	   
-	   $('#lessonPlans').fullCalendar('renderEvents', schedule.items, true);
+	   $lessonPlans.fullCalendar('addEventSource', renderSchedule);
+	  
    }
    //parent access test has passed 12/16/16
    //so from gwt we can have access to objects

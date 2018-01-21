@@ -1,6 +1,7 @@
 package net.videmantay.server;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +18,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 import net.videmantay.server.entity.RosterStudent;
+import net.videmantay.server.entity.SchoologyInfo;
 
 
 public class Login extends HttpServlet{
@@ -46,6 +48,7 @@ public class Login extends HttpServlet{
 			cred.refreshToken();
 		}
     	
+    	//TODO:consider changing to check user role
 		if(user.getEmail().equals("tdd6623@lausd.net") || 
 				user.getEmail().equals("youssef.elias@lausd.net") ||
 				user.getEmail().equals("robert.rodriguez@lausd.net")||

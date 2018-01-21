@@ -365,6 +365,17 @@ public class RosterService {
 		
 	}
 	
+	@DELETE
+	@Path("/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteRoster(@PathParam("id") Long id, final RosterInfo roster){
+		//figure out how to delete all the roster
+		db().delete().type(RosterInfo.class).id(id);
+		db().delete().type(Roster.class).id(id);
+		return Response.ok().entity(id).build();
+	}
+	
 	@POST
 	@Path("/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)

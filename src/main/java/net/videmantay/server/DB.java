@@ -16,7 +16,7 @@ import net.videmantay.server.entity.*;
 public class DB<T> implements Serializable {
 	
 	static {
-		
+		factory().register(SchoologyInfo.class);
 		//Roster and Deps
 		factory().register(Roster.class);
 		factory().register(RosterInfo.class);
@@ -37,7 +37,7 @@ public class DB<T> implements Serializable {
 		factory().register(StudentGoal.class);
 		factory().register(StudentIncident.class);
 		factory().register(JobBoard.class);
-		//schoology stuff here
+		
 	}
 	
 

@@ -147,12 +147,7 @@ input[type=text] {
 	<script>
 	
 	var $scheduleCal = $('#scheduleCal');
-	if(parent.currentClassroom.schedule ==null){
-		parent.currentClassroom.schedule = createSchedule();
-	}
-	var schedule = parent.currentClassroom.schedule;
-	
-	//var calEvent =[{title:'Work', start:moment('2018-01-02T09:30:00AM'),end:moment('2018-01-02T10:30:00AM')}];
+	var calEvent =[{title:'Work', start:moment('2018-01-02T09:30:00AM'),end:moment('2018-01-02T10:30:00AM')}];
 	$(function(){ //load the script
 		
 		 //initialize the schedule
@@ -172,7 +167,7 @@ input[type=text] {
 				  }
 			  },
 			  //event source
-			  events:schedule.items,
+			  events:calEvent,
 			  //now handle object update events
 			  //create a new event on dayClick
 			 /*  editable:true,
@@ -199,7 +194,7 @@ input[type=text] {
 				  console.log("INFO: fullcalendar day click called");
 				  console.log(date);
 				  newItem = scheduleItem();
-				  newItem.start = date.format("hh:mmA");
+				  newItem.start = date.format("HH:mmA");
 				  newItem.dow.push(date.day());
 				  console.log(date.weekday());
 				  console.log(newItem);
@@ -260,11 +255,12 @@ input[type=text] {
 	
 	
 		  //access to Schedule object
-		  function createSchedule(){
-			 return{
-			  id : parent.currentRoster.id,
-			 items:[]
-			 };
+		  function Schedule(){
+			  "use strict"
+			  this.id;
+			  this.items = new Array();
+			  this.type = 'weekly'; // weekly or daily
+			  this.categories =[];
 		  }
 		  //access to ScheduleItem
 		  function scheduleItem(){
@@ -331,7 +327,6 @@ input[type=text] {
 			  console.log("ok button pushsed here is the form data: ");
 			  console.log(formData);
 			 $scheduleCal.fullCalendar('renderEvent',formData,true);
-			 schedule.items.push(formData);
 			  hideScheduleForm();
 		  }
 		  

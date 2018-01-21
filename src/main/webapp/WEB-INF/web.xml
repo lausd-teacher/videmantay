@@ -83,6 +83,22 @@
     <url-pattern>/oauth2callback</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>schoologycallback</servlet-name>
+    <servlet-class>net.videmantay.server.SchoologyCallback</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>schoologycallback</servlet-name>
+    <url-pattern>/schoologycallback</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>schoology</servlet-name>
+    <servlet-class>net.videmantay.server.Schoology</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>schoology</servlet-name>
+    <url-pattern>/schoology</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>_ah_sessioncleanup</servlet-name>
     <servlet-class>com.google.apphosting.utils.servlet.SessionCleanupServlet</servlet-class>
   </servlet>

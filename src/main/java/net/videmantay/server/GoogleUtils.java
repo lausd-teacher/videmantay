@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
 import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
@@ -35,7 +35,7 @@ public class GoogleUtils {
 	private static Logger LOG = Logger.getAnonymousLogger();
 	
 	private final static JacksonFactory jsonFactory = new JacksonFactory();
-	private final static UrlFetchTransport transport = new UrlFetchTransport();
+	private final static NetHttpTransport transport = new NetHttpTransport();
 	private final static String applicationName = "RoutineLee";
 	private final static String clientId = "342098051221-vohdgpes1bunbmpkbb2i29k8tpkrcnqg.apps.googleusercontent.com";
 	private final static String clientSecret = "99Z8GLF6TLVUK07MYbRRRerY";
