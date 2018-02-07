@@ -39,7 +39,7 @@ public List<String>studentAttendanceKeys = new ArrayList<String>();
 public Set<StudentAttendance> studentAttendance = new HashSet<StudentAttendance>();
 
 public Attendance(){}
-public Attendance(Long id){
+public Attendance(String id){
 	this.id = id + new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 }
 

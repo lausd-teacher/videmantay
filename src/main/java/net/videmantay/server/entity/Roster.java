@@ -21,7 +21,7 @@ import com.googlecode.objectify.annotation.Serialize;
 public class Roster implements Serializable{
 	
 	@Id
-	public Long id;
+	public String id;
 	
 	public String sid;//schoologyId
 	
@@ -45,9 +45,7 @@ public class Roster implements Serializable{
 	
 	@Ignore
 	public RoutineConfig defaultRoutine;
-	
-	@Ignore
-	public Attendance attendance;
+
 	@Ignore
 	public List<RosterStudent> students ;
 	

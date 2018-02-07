@@ -20,6 +20,8 @@
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-api-services-people-v1-rev139-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-oauth-client-servlet-1.22.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-oauth-client-1.20.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/google-http-client-jackson-1.22.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/joda-time-2.9.4.jar"/>
 	<classpathentry kind="con" path="com.google.cloud.tools.eclipse.appengine.libraries/master-container">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>

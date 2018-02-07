@@ -1,9 +1,10 @@
 package net.videmantay.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,8 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.model.Person;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -24,6 +23,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.videmantay.server.entity.RosterInfo;
 import net.videmantay.server.entity.SchoologyInfo;
+import net.videmantay.server.schoology.*;
 
 import static net.videmantay.server.DB.db;
 
@@ -45,26 +45,26 @@ public class TeacherServlet extends HttpServlet {
 			res.sendRedirect("/auth");
 			return;
 		}
-		PeopleService people = GoogleUtils.people(cred);
+		SchoologyInfo sInfo = db().load().type(SchoologyInfo.class).id(user.getUserId()).now();
+		if(sInfo != null){
+			SchoologyUser sUser = SchoologyApi.user(sInfo);	
+			info.firstName = sUser.name_first;
+			info.lastName = sUser.name_last;
+			info.img = sUser.picture_url;
+		}
+		
 		info.email = user.getEmail();
 		info.token = cred.getAccessToken();
 		info.logout = UserServiceFactory.getUserService().createLogoutURL("/");
-		Person person = people.people().get("people/me").setPersonFields("names,photos").execute();
-		info.firstName = person.getNames().get(0).getGivenName();
-		info.lastName = person.getNames().get(0).getFamilyName();
-		info.img = person.getPhotos().get(0).getUrl();
-		
+	
 		//make info a json sting
 		ObjectMapper mapper = new ObjectMapper();
 		String infoJson = mapper.writeValueAsString(info);
 		log.info("loginfo is " + infoJson);
 		
-		//here you should list the roster if no roster make a demo 
-		java.util.List<RosterInfo> rosterDB = db().load().type(RosterInfo.class).filter("ownerId", user.getEmail()).list();
-		if(rosterDB == null || rosterDB.size() <= 0){
-			
-		}
-		String rostList = mapper.writeValueAsString(rosterDB);
+		List<RosterInfo> rosList = RosterApi.rosterList(user, sInfo);
+	
+		String rostList = mapper.writeValueAsString(rosList);
 		
 		TemplateGen template = (TemplateGen) this.getServletContext().getAttribute("template");
 		res.setContentType("text/html");

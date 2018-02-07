@@ -1,6 +1,7 @@
 package net.videmantay.server;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -10,9 +11,10 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
 import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.classroom.Classroom;
@@ -35,14 +37,13 @@ public class GoogleUtils {
 	private static Logger LOG = Logger.getAnonymousLogger();
 	
 	private final static JacksonFactory jsonFactory = new JacksonFactory();
-	private final static NetHttpTransport transport = new NetHttpTransport();
-	private final static String applicationName = "RoutineLee";
-	private final static String clientId = "342098051221-vohdgpes1bunbmpkbb2i29k8tpkrcnqg.apps.googleusercontent.com";
-	private final static String clientSecret = "99Z8GLF6TLVUK07MYbRRRerY";
+	private  static NetHttpTransport transport;
+	private final static String applicationName = "Routinely";
+	private final static String clientId = "342098051221-jkmtms0putq1t8cq3upm6h5bs6kdj9ee.apps.googleusercontent.com";
+	private final static String clientSecret = "O7f8A14kUbMy_VQpdZY71vV0";
 	public final static AppEngineDataStoreFactory dataStoreFactory = AppEngineDataStoreFactory.getDefaultInstance();
 	
 	public final static String PhotoUploadScope ="https://www.googleapis.com/auth/photos.upload";
-	public final static String SitesScope = "https://sites.google.com/feeds/";
 	
 	
 	
@@ -50,15 +51,19 @@ public class GoogleUtils {
 		ArrayList<String> scopes = new ArrayList<String>();
 		scopes.add(DriveScopes.DRIVE);
 		scopes.add(CalendarScopes.CALENDAR);
+		scopes.add(TasksScopes.TASKS);
+		scopes.add(PhotoUploadScope);
+		/* These scopes not need for schoology app ///// 
 		scopes.add(ClassroomScopes.CLASSROOM_ROSTERS);
 		scopes.add(ClassroomScopes.CLASSROOM_COURSES);
 		scopes.add(ClassroomScopes.CLASSROOM_COURSEWORK_ME);
 		scopes.add(ClassroomScopes.CLASSROOM_COURSEWORK_STUDENTS);
-		scopes.add(TasksScopes.TASKS);
 		scopes.add(SheetsScopes.SPREADSHEETS);
 		scopes.add(PeopleServiceScopes.USERINFO_PROFILE);
-		scopes.add(PhotoUploadScope);
+		*/
 		
+		try{
+		transport =GoogleNetHttpTransport.newTrustedTransport();
 		
 		GoogleAuthorizationCodeFlow flow = 
 				  new GoogleAuthorizationCodeFlow.Builder(transport,jsonFactory,clientId,clientSecret,scopes)
@@ -68,10 +73,16 @@ public class GoogleUtils {
 				  .setApprovalPrompt("auto")
 				  .build();				
 		return flow;	
+		}catch(GeneralSecurityException gse){
+			return null;
+		}
 	}
 	
 	public static Credential cred(String userId) throws IOException{
-		final Credential credential = authFlow(userId).loadCredential(userId);
+		Credential credential;
+		 credential = authFlow(userId).loadCredential(userId);
+		
+		
 		if(credential == null){
 			LOG.warning("Credential is null user didn't get approval");
 			return null;
@@ -100,9 +111,9 @@ public class GoogleUtils {
 		
 	}
 	
-	public static Classroom classroom(Credential cred){
+	/*public static Classroom classroom(Credential cred){
 		return new Classroom.Builder(transport, jsonFactory, cred).setApplicationName(applicationName).build();
-	}
+	}*/
 	
 	public static Tasks task(Credential cred){
 		return new Tasks.Builder(transport , jsonFactory, cred).setApplicationName(applicationName).build();

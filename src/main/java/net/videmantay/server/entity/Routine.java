@@ -17,7 +17,7 @@ public class Routine implements Serializable{
 	public Long id;
 	
 	@Index
-	public Long rosterId;
+	public String rosterId;
 	
 	public String title;
 	public String descript;
@@ -50,11 +50,11 @@ public class Routine implements Serializable{
 		this.id = id;
 	}
 	
-	public Long getRosterId() {
+	public String getRosterId() {
 		return this.rosterId;
 	}
 	
-	public void setRosterId(Long rosterId) {
+	public void setRosterId(String rosterId) {
 		this.rosterId = rosterId;
 	}
 	

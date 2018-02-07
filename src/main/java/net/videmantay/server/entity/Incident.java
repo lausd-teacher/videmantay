@@ -12,7 +12,7 @@ public class Incident implements Serializable{
 	@Id
     public Long id;
 	@Index
-	public  transient Long rosterId;
+	public  transient String rosterId;
 		
 	public String name;
 	public String imageUrl;
@@ -24,7 +24,7 @@ public class Incident implements Serializable{
 
 
 
-	public Incident(Long id, Long  rosId, String name, String imageUrl, int points) {
+	public Incident(Long id, String  rosId, String name, String imageUrl, int points) {
 		this.id = id;
 		this.rosterId =  rosId;
 		this.name = name;
@@ -44,11 +44,11 @@ public class Incident implements Serializable{
 		return this.imageUrl;
 	}
 	
-	public Long getRosterId(){
+	public String getRosterId(){
 		return this.rosterId;
 	}
 
-	public void setRosterId(Long rosId){
+	public void setRosterId(String rosId){
 		this.rosterId = rosId;
 	}
 	public void setId(Long id) {

@@ -1,6 +1,7 @@
 package net.videmantay.server.entity;
 
 import java.io.Serializable;
+import java.util.*;
 import java.util.HashSet;
 
 import net.videmantay.server.constant.GroupingType;
@@ -21,5 +22,13 @@ public class Group implements Serializable{
 	public String borderColor;
 	
 	public HashSet<String> students = new HashSet<>();
+	
+	public List<Role> roles = new ArrayList<Role>();
+	
+	public class Role{
+		public String title;
+		public String description;
+		public HashSet<String> students = new HashSet<String>();
+	}
 
 }
